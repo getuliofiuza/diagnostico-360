@@ -3,12 +3,12 @@
 // ============================================================================
 // Recupera diagnóstico completo com todos os dados
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { DiagnosticoCompleto } from '@/types/diagnostico';
 
 export async function GET(
-  request: NextRequest,
+  _request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -93,7 +93,7 @@ export async function GET(
       }));
 
     // 7. Gerar narrativa interpretativa
-    const narrativa = construirNarrativa({
+    const narrativa = gerarNarrativa({
       escore_geral: diagnostico.escore_geral,
       maturidade: diagnostico.maturidade,
       empresa_nome: diagnostico.empresa_nome,
@@ -142,4 +142,78 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+// ============================================================================
+// HELPER: Gerar Narrativa Interpretativa
+// ============================================================================
+
+interface NarrativaInput {
+  escore_geral: number;
+  maturidade: string;
+  empresa_nome: string;
+  setor: string;
+  porte: string;
+  escores: Array<{ area: string; escore: number }>;
+  matriz_risco: Array<{ area: string; classificacao: string; escore: number; risco_score: number }>;
+}
+
+function gerarNarrativa(input: NarrativaInput): string {
+  const { escore_geral, maturidade, empresa_nome, setor, porte, escores, matriz_risco } = input;
+
+  const partes: string[] = [];
+
+  // Abertura contextual
+  partes.push(
+    `A empresa ${empresa_nome} (${setor}, porte ${porte}) atingiu um Índice de Maturidade Empresarial de ${escore_geral}/10, classificada no nível ${maturidade}.`
+  );
+
+  // Interpretação do nível
+  const interpretacoes: Record<string, string> = {
+    'NULA': 'Este resultado indica baixíssima maturidade operacional, com processos majoritariamente informais ou inexistentes. Há necessidade urgente de estruturação básica em quase todas as áreas para garantir a sustentabilidade do negócio.',
+    'BASICA': 'A empresa apresenta processos rudimentares, em maioria informais. Existe oportunidade significativa de estruturação para profissionalizar a gestão e reduzir riscos operacionais.',
+    'BÁSICA': 'A empresa apresenta processos rudimentares, em maioria informais. Existe oportunidade significativa de estruturação para profissionalizar a gestão e reduzir riscos operacionais.',
+    'INICIAL': 'A empresa está em estágio inicial de maturidade. Já possui alguns processos estruturados, mas ainda há lacunas relevantes que limitam o crescimento sustentável e a competitividade.',
+    'PLENA': 'A empresa demonstra maturidade operacional sólida, com processos bem estruturados na maioria das áreas. O foco agora deve ser refinar pontos específicos e buscar excelência nas áreas-chave.',
+    'AVANCADA': 'A empresa apresenta maturidade avançada, posicionando-se como referência operacional. Recomenda-se manter os padrões e focar em inovação e diferenciação competitiva.',
+    'AVANÇADA': 'A empresa apresenta maturidade avançada, posicionando-se como referência operacional. Recomenda-se manter os padrões e focar em inovação e diferenciação competitiva.',
+  };
+  partes.push(interpretacoes[maturidade] || interpretacoes['INICIAL']);
+
+  // Pontos fortes (top 3)
+  const fortes = [...escores].sort((a, b) => b.escore - a.escore).slice(0, 3).filter(e => e.escore >= 7);
+  if (fortes.length > 0) {
+    partes.push(
+      `\nPONTOS FORTES: As áreas com melhor desempenho são ${fortes.map(f => `${f.area} (${f.escore}/10)`).join(', ')}. Essas competências devem ser preservadas e usadas como alavanca para o desenvolvimento das demais áreas.`
+    );
+  }
+
+  // Áreas críticas (matriz)
+  const criticas = matriz_risco.filter(m => m.classificacao === 'CRÍTICO' || m.classificacao === 'CRITICO');
+  if (criticas.length > 0) {
+    partes.push(
+      `\nÁREAS CRÍTICAS: ${criticas.length} área(s) requer(em) atenção imediata — ${criticas.map(c => `${c.area} (escore ${c.escore}/10, risco ${c.risco_score})`).join('; ')}. Ações corretivas nessas frentes devem ser priorizadas nos próximos 30-60 dias para evitar comprometimento dos resultados.`
+    );
+  }
+
+  // Recomendação estratégica
+  if (escore_geral < 4) {
+    partes.push(
+      `\nRECOMENDAÇÃO ESTRATÉGICA: Foque primeiro em construir bases sólidas — controles financeiros, processos de RH e planejamento estratégico básico. Sem essas fundações, melhorias em outras áreas não se sustentarão.`
+    );
+  } else if (escore_geral < 6) {
+    partes.push(
+      `\nRECOMENDAÇÃO ESTRATÉGICA: Priorize a resolução das áreas críticas e invista em integração de processos. A empresa tem fundamentos básicos, mas precisa consolidar a operação antes de buscar crescimento acelerado.`
+    );
+  } else if (escore_geral < 8) {
+    partes.push(
+      `\nRECOMENDAÇÃO ESTRATÉGICA: Refine os pontos pendentes e busque eficiência operacional. A empresa já tem maturidade para investir em diferenciação competitiva, inovação e expansão controlada.`
+    );
+  } else {
+    partes.push(
+      `\nRECOMENDAÇÃO ESTRATÉGICA: Mantenha os padrões e foque em consolidar a posição competitiva através de inovação contínua, transformação digital avançada e excelência em todas as frentes.`
+    );
+  }
+
+  return partes.join(' ');
 }

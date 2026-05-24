@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Dados para gráficos
-    let radarData = [];
+    let radarData: Array<{ area: string; escore: number }> = [];
     try {
       radarData = gerarDadosRadar(escoresPorArea);
     } catch (e) {
