@@ -1,0 +1,82 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import type { User } from '@supabase/supabase-js'
+
+export function Navbar() {
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+      setLoading(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
+
+  return (
+    <nav className="bg-white border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-2xl font-bold text-primary-700">360</span>
+            <span className="text-gray-600 font-medium">Diagnóstico Empresarial</span>
+          </Link>
+
+          <div className="flex items-center gap-4">
+            {loading ? (
+              <div className="w-20 h-8 bg-gray-100 rounded animate-pulse" />
+            ) : user ? (
+              <>
+                <Link href="/diagnosticos" className="text-gray-600 hover:text-primary-700 font-medium transition-colors">
+                  Diagnósticos
+                </Link>
+                <Link href="/diagnostico/novo" className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                  Novo
+                </Link>
+                <div className="flex items-center gap-3 ml-2 pl-4 border-l border-gray-200">
+                  <span className="text-sm text-gray-500 hidden sm:block">
+                    {user.user_metadata?.nome || user.email?.split('@')[0]}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm text-gray-400 hover:text-red-600 transition-colors"
+                  >
+                    Sair
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-gray-600 hover:text-primary-700 font-medium transition-colors">
+                  Entrar
+                </Link>
+                <Link href="/cadastro" className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                  Criar Conta
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  )
+}
