@@ -31,12 +31,15 @@ import {
 // ============================================================================
 
 const CreateDiagnosticoSchema = z.object({
+  // Obrigatórios
   tenant_id: z.string().uuid(),
   empresa_nome: z.string().min(3, 'Nome da empresa é obrigatório'),
   setor: z.enum(['Comércio', 'Serviços']),
   porte: z.enum(['Micro', 'Pequena', 'Média', 'Grande']),
   respondente_nome: z.string().min(2, 'Nome do respondente é obrigatório'),
   respondente_email: z.string().email('Email inválido'),
+
+  // Opcionais (TIER 1)
   respondente_telefone: z.string().optional().nullable(),
   endereco: z.string().optional().nullable(),
   municipio: z.string().optional().nullable(),
@@ -57,6 +60,53 @@ const CreateDiagnosticoSchema = z.object({
   narrativa_gestor: z.string().optional().nullable(),
   diferencial_competitivo: z.string().optional().nullable(),
   dores_principais: z.string().optional().nullable(),
+
+  // TIER 2 — Dados Aprofundados por Área
+  criterio_decisao_estrategica: z.string().optional().nullable(),
+  deficiencias_gestao: z.array(z.string()).optional().nullable(),
+  deficiencias_gestao_outros: z.string().optional().nullable(),
+
+  num_colab_operacional: z.number().int().optional().nullable(),
+  num_colab_comercial: z.number().int().optional().nullable(),
+  num_colab_administrativo: z.number().int().optional().nullable(),
+  media_salarial_operacional: z.number().optional().nullable(),
+  media_salarial_comercial: z.number().optional().nullable(),
+  media_salarial_administrativo: z.number().optional().nullable(),
+  admissoes_trimestre: z.number().int().optional().nullable(),
+  demissoes_trimestre: z.number().int().optional().nullable(),
+  vagas_abertas: z.number().int().optional().nullable(),
+  folha_pagamento_mensal: z.number().optional().nullable(),
+  gargalos_rh: z.array(z.string()).optional().nullable(),
+
+  estoque_medio_mensal: z.number().optional().nullable(),
+  num_itens_portfolio: z.number().int().optional().nullable(),
+  unidade_medida_estoque: z.string().optional().nullable(),
+  deficiencias_estoque: z.array(z.string()).optional().nullable(),
+
+  faturamento_mensal: z.number().optional().nullable(),
+  custo_fixo_mensal: z.number().optional().nullable(),
+  custo_variavel_mensal: z.number().optional().nullable(),
+  possui_endividamento: z.boolean().optional().nullable(),
+  endividamento_banco_pct: z.number().optional().nullable(),
+  endividamento_fornecedor_pct: z.number().optional().nullable(),
+  endividamento_factoring_pct: z.number().optional().nullable(),
+  endividamento_fisco_pct: z.number().optional().nullable(),
+  endividamento_sefaz_pct: z.number().optional().nullable(),
+  endividamento_outros_pct: z.number().optional().nullable(),
+  ticket_medio: z.number().optional().nullable(),
+  margem_contribuicao_pct: z.number().optional().nullable(),
+  ponto_equilibrio: z.number().optional().nullable(),
+  melhores_meses_vendas: z.array(z.string()).optional().nullable(),
+  piores_meses_vendas: z.array(z.string()).optional().nullable(),
+  deficiencias_financeiro: z.array(z.string()).optional().nullable(),
+
+  ociosidade_vendas: z.string().optional().nullable(),
+  criterio_preco_vendas: z.string().optional().nullable(),
+  busca_clientes: z.array(z.string()).optional().nullable(),
+  cac_novos_clientes: z.number().optional().nullable(),
+  posicao_preco_concorrencia: z.string().optional().nullable(),
+  deficiencias_marketing: z.array(z.string()).optional().nullable(),
+
   respostas: z.array(
     z.object({
       questao_id: z.number(),
@@ -66,7 +116,7 @@ const CreateDiagnosticoSchema = z.object({
       resposta_texto: z.string().optional().nullable()
     })
   ).min(1, 'Pelo menos uma resposta é obrigatória')
-});
+}).passthrough();
 
 // ============================================================================
 // HANDLER
@@ -98,26 +148,6 @@ export async function POST(request: NextRequest) {
       porte,
       respondente_nome,
       respondente_email,
-      respondente_telefone,
-      endereco,
-      municipio,
-      microrregiao,
-      mesorregiao,
-      faturamento_anual,
-      num_funcionarios,
-      tempo_mercado_anos,
-      atividade_cnae,
-      frequencia_clientes_dia,
-      clientes_efetivos_dia,
-      area_total_m2,
-      area_construida_m2,
-      tempo_gestor_anos,
-      idade_gestor_faixa,
-      origem_gestor,
-      escolaridade_gestor,
-      narrativa_gestor,
-      diferencial_competitivo,
-      dores_principais,
       respostas
     } = v;
 
@@ -160,7 +190,38 @@ export async function POST(request: NextRequest) {
       escoresMap[coluna] = escore.escore;
     });
 
-    // 12. Inserir no banco
+    // 12. Inserir no banco — campos opcionais via spread (apenas os definidos)
+    const opcionais: Record<string, any> = {};
+    const camposOpcionais = [
+      'respondente_telefone', 'endereco', 'municipio', 'microrregiao', 'mesorregiao',
+      'faturamento_anual', 'num_funcionarios', 'tempo_mercado_anos',
+      'atividade_cnae', 'frequencia_clientes_dia', 'clientes_efetivos_dia',
+      'area_total_m2', 'area_construida_m2',
+      'tempo_gestor_anos', 'idade_gestor_faixa', 'origem_gestor', 'escolaridade_gestor',
+      'narrativa_gestor', 'diferencial_competitivo', 'dores_principais',
+      // TIER 2
+      'criterio_decisao_estrategica', 'deficiencias_gestao', 'deficiencias_gestao_outros',
+      'num_colab_operacional', 'num_colab_comercial', 'num_colab_administrativo',
+      'media_salarial_operacional', 'media_salarial_comercial', 'media_salarial_administrativo',
+      'admissoes_trimestre', 'demissoes_trimestre', 'vagas_abertas', 'folha_pagamento_mensal',
+      'gargalos_rh',
+      'estoque_medio_mensal', 'num_itens_portfolio', 'unidade_medida_estoque', 'deficiencias_estoque',
+      'faturamento_mensal', 'custo_fixo_mensal', 'custo_variavel_mensal',
+      'possui_endividamento',
+      'endividamento_banco_pct', 'endividamento_fornecedor_pct', 'endividamento_factoring_pct',
+      'endividamento_fisco_pct', 'endividamento_sefaz_pct', 'endividamento_outros_pct',
+      'ticket_medio', 'margem_contribuicao_pct', 'ponto_equilibrio',
+      'melhores_meses_vendas', 'piores_meses_vendas', 'deficiencias_financeiro',
+      'ociosidade_vendas', 'criterio_preco_vendas', 'busca_clientes', 'cac_novos_clientes',
+      'posicao_preco_concorrencia', 'deficiencias_marketing'
+    ];
+    for (const campo of camposOpcionais) {
+      const val = v[campo];
+      if (val !== undefined && val !== null && val !== '') {
+        opcionais[campo] = val;
+      }
+    }
+
     const { data: diagnostico, error: insertError } = await supabase
       .from('diagnosticos_360')
       .insert({
@@ -169,28 +230,9 @@ export async function POST(request: NextRequest) {
         data_aplicacao: new Date().toISOString().split('T')[0],
         respondente_nome,
         respondente_email,
-        respondente_telefone: respondente_telefone || null,
-        endereco: endereco || null,
-        municipio: municipio || null,
-        microrregiao: microrregiao || null,
-        mesorregiao: mesorregiao || null,
-        faturamento_anual: faturamento_anual ?? null,
-        num_funcionarios: num_funcionarios ?? null,
-        tempo_mercado_anos: tempo_mercado_anos ?? null,
-        atividade_cnae: atividade_cnae || null,
-        frequencia_clientes_dia: frequencia_clientes_dia ?? null,
-        clientes_efetivos_dia: clientes_efetivos_dia ?? null,
-        area_total_m2: area_total_m2 ?? null,
-        area_construida_m2: area_construida_m2 ?? null,
-        tempo_gestor_anos: tempo_gestor_anos ?? null,
-        idade_gestor_faixa: idade_gestor_faixa || null,
-        origem_gestor: origem_gestor || null,
-        escolaridade_gestor: escolaridade_gestor || null,
-        narrativa_gestor: narrativa_gestor || null,
-        diferencial_competitivo: diferencial_competitivo || null,
-        dores_principais: dores_principais || null,
         setor,
         porte,
+        ...opcionais,
         ...escoresMap,
         escore_geral,
         maturidade,

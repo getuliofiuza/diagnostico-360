@@ -130,10 +130,183 @@ const ConfigSchema = z.object({
   // Qualitativos (sugestões do usuário)
   narrativa_gestor: z.string().optional(),
   diferencial_competitivo: z.string().optional(),
-  dores_principais: z.string().optional()
+  dores_principais: z.string().optional(),
+
+  // ========================================================================
+  // DADOS APROFUNDADOS POR ÁREA (Anexo XXVII + B&G)
+  // ========================================================================
+
+  // Planejamento Estratégico
+  criterio_decisao_estrategica: z.string().optional(),
+  deficiencias_gestao: z.array(z.string()).optional(),
+  deficiencias_gestao_outros: z.string().optional(),
+
+  // Recursos Humanos
+  num_colab_operacional: z.coerce.number().int().min(0).optional(),
+  num_colab_comercial: z.coerce.number().int().min(0).optional(),
+  num_colab_administrativo: z.coerce.number().int().min(0).optional(),
+  media_salarial_operacional: z.coerce.number().min(0).optional(),
+  media_salarial_comercial: z.coerce.number().min(0).optional(),
+  media_salarial_administrativo: z.coerce.number().min(0).optional(),
+  admissoes_trimestre: z.coerce.number().int().min(0).optional(),
+  demissoes_trimestre: z.coerce.number().int().min(0).optional(),
+  vagas_abertas: z.coerce.number().int().min(0).optional(),
+  folha_pagamento_mensal: z.coerce.number().min(0).optional(),
+  gargalos_rh: z.array(z.string()).optional(),
+
+  // Estoque
+  estoque_medio_mensal: z.coerce.number().min(0).optional(),
+  num_itens_portfolio: z.coerce.number().int().min(0).optional(),
+  unidade_medida_estoque: z.string().optional(),
+  deficiencias_estoque: z.array(z.string()).optional(),
+
+  // Financeiro
+  faturamento_mensal: z.coerce.number().min(0).optional(),
+  custo_fixo_mensal: z.coerce.number().min(0).optional(),
+  custo_variavel_mensal: z.coerce.number().min(0).optional(),
+  possui_endividamento: z.boolean().optional(),
+  endividamento_banco_pct: z.coerce.number().min(0).max(100).optional(),
+  endividamento_fornecedor_pct: z.coerce.number().min(0).max(100).optional(),
+  endividamento_factoring_pct: z.coerce.number().min(0).max(100).optional(),
+  endividamento_fisco_pct: z.coerce.number().min(0).max(100).optional(),
+  endividamento_sefaz_pct: z.coerce.number().min(0).max(100).optional(),
+  endividamento_outros_pct: z.coerce.number().min(0).max(100).optional(),
+  ticket_medio: z.coerce.number().min(0).optional(),
+  margem_contribuicao_pct: z.coerce.number().min(0).max(100).optional(),
+  ponto_equilibrio: z.coerce.number().min(0).optional(),
+  melhores_meses_vendas: z.array(z.string()).optional(),
+  piores_meses_vendas: z.array(z.string()).optional(),
+  deficiencias_financeiro: z.array(z.string()).optional(),
+
+  // Marketing/Vendas
+  ociosidade_vendas: z.string().optional(),
+  criterio_preco_vendas: z.string().optional(),
+  busca_clientes: z.array(z.string()).optional(),
+  cac_novos_clientes: z.coerce.number().min(0).optional(),
+  posicao_preco_concorrencia: z.string().optional(),
+  deficiencias_marketing: z.array(z.string()).optional()
 });
 
 type ConfigFormData = z.infer<typeof ConfigSchema>;
+
+// ============================================================================
+// OPÇÕES DE MÚLTIPLA ESCOLHA (do Anexo XXVII)
+// ============================================================================
+
+const DEFICIENCIAS_GESTAO = [
+  'Influência familiar',
+  'Baixo conhecimento gerencial',
+  'Má qualidade de mão de obra',
+  'Descapitalização',
+  'Concorrência desleal',
+  'Infraestrutura pública',
+  'Infraestrutura da empresa',
+  'Equipamentos obsoletos',
+  'Alta carga tributária',
+  'Distância dos consumidores',
+  'Falta de informações para decisão',
+  'Comodismo empresarial'
+];
+
+const GARGALOS_RH = [
+  'Falta de mão de obra (quantidade)',
+  'Baixa qualificação',
+  'Despreparo técnico',
+  'Falta de comprometimento',
+  'Altas exigências salariais',
+  'Falta de motivação',
+  'Despreparo da empresa para contratar',
+  'Influência familiar na estrutura',
+  'A empresa não sofre estes problemas'
+];
+
+const UNIDADES_MEDIDA = ['KG', 'TON', '@', 'Litro', 'Unidade', 'Pacote', 'Saca', 'Caixa', 'Tonel', 'Barril', 'M²', 'M³', 'R$', 'Serviços', 'Outra'];
+
+const DEFICIENCIAS_ESTOQUE = [
+  'Mal gerenciamento produtivo',
+  'Baixo conhecimento dos processos',
+  'Má qualidade de mão de obra',
+  'Maquinários obsoletos',
+  'Desconhecimento de mercado',
+  'Baixa qualidade da MP',
+  'Baixa qualidade do PF',
+  'Incapacidade de estoque'
+];
+
+const MESES_ANO = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+
+const DEFICIENCIAS_FINANCEIRO = [
+  'Mal gerenciamento financeiro',
+  'Envolvimento familiar na gestão',
+  'Dificuldade para formar preço',
+  'Desconhecimento técnico',
+  'Falta de capital de giro',
+  'Alto endividamento',
+  'Alto peso tributário',
+  'Concorrência desleal de preços',
+  'Inadimplência'
+];
+
+const BUSCA_CLIENTES = [
+  'Possui base de clientes formada',
+  'Contatos telefônicos',
+  'Feiras e eventos',
+  'Missões comerciais',
+  'Rodadas de negócios',
+  'Marketing digital / redes sociais',
+  'Indicações / boca a boca',
+  'Outras ações'
+];
+
+const DEFICIENCIAS_MARKETING = [
+  'Mal gerenciamento comercial',
+  'Envolvimento familiar na gestão',
+  'Dificuldade para identificar clientes',
+  'Mercado saturado',
+  'Falta de competitividade preço',
+  'Falta de competitividade logística',
+  'Falta de competitividade qualidade',
+  'Falta de competitividade prazo'
+];
+
+// ============================================================================
+// COMPONENTE: GRUPO DE CHECKBOXES
+// ============================================================================
+
+interface CheckboxGroupProps {
+  options: string[];
+  value: string[] | undefined;
+  onChange: (newValue: string[]) => void;
+  cols?: number;
+}
+
+function CheckboxGroup({ options, value, onChange, cols = 2 }: CheckboxGroupProps) {
+  const selected = value || [];
+  const toggle = (opt: string) => {
+    if (selected.includes(opt)) {
+      onChange(selected.filter(s => s !== opt));
+    } else {
+      onChange([...selected, opt]);
+    }
+  };
+  return (
+    <div className={`grid grid-cols-1 md:grid-cols-${cols} gap-2`}>
+      {options.map(opt => (
+        <label key={opt} className={`flex items-start gap-2 p-2 rounded-lg border cursor-pointer text-sm transition ${
+          selected.includes(opt) ? 'bg-blue-50 border-blue-300' : 'border-gray-200 hover:bg-gray-50'
+        }`}>
+          <input
+            type="checkbox"
+            checked={selected.includes(opt)}
+            onChange={() => toggle(opt)}
+            className="w-4 h-4 text-blue-600 mt-0.5"
+          />
+          <span className="text-gray-700">{opt}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
 
 // ============================================================================
 // COMPONENTE
@@ -216,37 +389,13 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
         }))
         .filter(r => r.resposta);
 
-      // Enviar para API
+      // Enviar para API — envia tudo do config + respostas
       const response = await fetch('/api/diagnosticos/criar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tenant_id,
-          empresa_nome: config.empresa_nome,
-          setor: config.setor,
-          porte: config.porte,
-          respondente_nome: config.respondente_nome,
-          respondente_email: config.respondente_email,
-          respondente_telefone: config.respondente_telefone,
-          endereco: config.endereco,
-          municipio: config.municipio,
-          microrregiao: config.microrregiao,
-          mesorregiao: config.mesorregiao,
-          faturamento_anual: config.faturamento_anual,
-          num_funcionarios: config.num_funcionarios,
-          tempo_mercado_anos: config.tempo_mercado_anos,
-          atividade_cnae: config.atividade_cnae,
-          frequencia_clientes_dia: config.frequencia_clientes_dia,
-          clientes_efetivos_dia: config.clientes_efetivos_dia,
-          area_total_m2: config.area_total_m2,
-          area_construida_m2: config.area_construida_m2,
-          tempo_gestor_anos: config.tempo_gestor_anos,
-          idade_gestor_faixa: config.idade_gestor_faixa,
-          origem_gestor: config.origem_gestor,
-          escolaridade_gestor: config.escolaridade_gestor,
-          narrativa_gestor: config.narrativa_gestor,
-          diferencial_competitivo: config.diferencial_competitivo,
-          dores_principais: config.dores_principais,
+          ...config,
           respostas: respostasFormatadas
         })
       });
@@ -670,6 +819,338 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                     )} />
                   </div>
                 </div>
+              </div>
+
+              {/* ================================================================ */}
+              {/* DADOS APROFUNDADOS POR ÁREA (Anexo XXVII)                        */}
+              {/* ================================================================ */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">📊 Dados Aprofundados por Área</h3>
+                <p className="text-sm text-gray-500 mb-4">Dados quantitativos opcionais para enriquecer a análise. Quanto mais completo, mais preciso será o diagnóstico.</p>
+
+                {/* PLANEJAMENTO ESTRATÉGICO */}
+                <details className="mb-3 border border-gray-200 rounded-lg overflow-hidden" open>
+                  <summary className="cursor-pointer px-4 py-3 bg-gray-50 font-semibold text-gray-800 hover:bg-gray-100">
+                    🎯 Planejamento Estratégico
+                  </summary>
+                  <div className="p-4 space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Qual o critério utilizado para tomada de decisões estratégicas?</label>
+                      <Controller name="criterio_decisao_estrategica" control={control} render={({ field }) => (
+                        <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                          <option value="">Selecione...</option>
+                          <option value="Experiência do proprietário">Pela experiência do proprietário/intuição</option>
+                          <option value="Dados técnicos do mercado">Com base em dados técnicos do mercado</option>
+                          <option value="Consultoria externa">Com apoio de consultoria externa</option>
+                          <option value="Conselho consultivo">Decisão colegiada/conselho consultivo</option>
+                          <option value="Misto">Misto (experiência + dados)</option>
+                          <option value="Não há critério definido">Não há critério definido</option>
+                        </select>
+                      )} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Principais deficiências/dificuldades em gestão e planejamento (marque todas que se aplicam)</label>
+                      <Controller name="deficiencias_gestao" control={control} render={({ field }) => (
+                        <CheckboxGroup options={DEFICIENCIAS_GESTAO} value={field.value} onChange={field.onChange} cols={3} />
+                      )} />
+                    </div>
+                  </div>
+                </details>
+
+                {/* RECURSOS HUMANOS */}
+                <details className="mb-3 border border-gray-200 rounded-lg overflow-hidden">
+                  <summary className="cursor-pointer px-4 py-3 bg-gray-50 font-semibold text-gray-800 hover:bg-gray-100">
+                    👥 Recursos Humanos
+                  </summary>
+                  <div className="p-4 space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Número de colaboradores e média salarial por categoria</label>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="border border-gray-200 rounded p-3">
+                          <p className="text-xs font-medium text-gray-600 mb-2">OPERACIONAL</p>
+                          <Controller name="num_colab_operacional" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2" placeholder="Qtd" />
+                          )} />
+                          <Controller name="media_salarial_operacional" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
+                          )} />
+                        </div>
+                        <div className="border border-gray-200 rounded p-3">
+                          <p className="text-xs font-medium text-gray-600 mb-2">COMERCIAL</p>
+                          <Controller name="num_colab_comercial" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2" placeholder="Qtd" />
+                          )} />
+                          <Controller name="media_salarial_comercial" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
+                          )} />
+                        </div>
+                        <div className="border border-gray-200 rounded p-3">
+                          <p className="text-xs font-medium text-gray-600 mb-2">ADMINISTRATIVO</p>
+                          <Controller name="num_colab_administrativo" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2" placeholder="Qtd" />
+                          )} />
+                          <Controller name="media_salarial_administrativo" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
+                          )} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Admissões (último trimestre)</label>
+                        <Controller name="admissoes_trimestre" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Demissões (último trimestre)</label>
+                        <Controller name="demissoes_trimestre" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Vagas em aberto</label>
+                        <Controller name="vagas_abertas" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Folha pagamento (R$/mês)</label>
+                        <Controller name="folha_pagamento_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                        )} />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Principais gargalos/dificuldades em RH (marque todas que se aplicam)</label>
+                      <Controller name="gargalos_rh" control={control} render={({ field }) => (
+                        <CheckboxGroup options={GARGALOS_RH} value={field.value} onChange={field.onChange} cols={3} />
+                      )} />
+                    </div>
+                  </div>
+                </details>
+
+                {/* ESTOQUE */}
+                <details className="mb-3 border border-gray-200 rounded-lg overflow-hidden">
+                  <summary className="cursor-pointer px-4 py-3 bg-gray-50 font-semibold text-gray-800 hover:bg-gray-100">
+                    📦 Estoque
+                  </summary>
+                  <div className="p-4 space-y-4">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Itens no portfólio</label>
+                        <Controller name="num_itens_portfolio" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="100" />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Unidade de medida principal</label>
+                        <Controller name="unidade_medida_estoque" control={control} render={({ field }) => (
+                          <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Selecione...</option>
+                            {UNIDADES_MEDIDA.map(u => <option key={u} value={u}>{u}</option>)}
+                          </select>
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Estoque médio mensal (R$)</label>
+                        <Controller name="estoque_medio_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="50000" />
+                        )} />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Principais deficiências em estoque (marque todas)</label>
+                      <Controller name="deficiencias_estoque" control={control} render={({ field }) => (
+                        <CheckboxGroup options={DEFICIENCIAS_ESTOQUE} value={field.value} onChange={field.onChange} cols={2} />
+                      )} />
+                    </div>
+                  </div>
+                </details>
+
+                {/* FINANCEIRO */}
+                <details className="mb-3 border border-gray-200 rounded-lg overflow-hidden">
+                  <summary className="cursor-pointer px-4 py-3 bg-gray-50 font-semibold text-gray-800 hover:bg-gray-100">
+                    💰 Financeiro
+                  </summary>
+                  <div className="p-4 space-y-4">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Faturamento médio mensal (R$)</label>
+                        <Controller name="faturamento_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="100000" />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Custo fixo mensal (R$)</label>
+                        <Controller name="custo_fixo_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="30000" />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Custo variável mensal (R$)</label>
+                        <Controller name="custo_variavel_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="40000" />
+                        )} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Ticket médio (R$)</label>
+                        <Controller name="ticket_medio" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="200" />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Margem de contribuição (%)</label>
+                        <Controller name="margem_contribuicao_pct" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" max="100" step="0.1" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="35" />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Ponto de equilíbrio (R$/mês)</label>
+                        <Controller name="ponto_equilibrio" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="60000" />
+                        )} />
+                      </div>
+                    </div>
+
+                    {/* Endividamento */}
+                    <div className="border border-amber-200 bg-amber-50 rounded-lg p-4">
+                      <Controller name="possui_endividamento" control={control} render={({ field }) => (
+                        <label className="flex items-center gap-2 mb-3 cursor-pointer">
+                          <input type="checkbox" checked={!!field.value} onChange={(e) => field.onChange(e.target.checked)} className="w-4 h-4 text-blue-600" />
+                          <span className="font-semibold text-amber-900">A empresa possui endividamento?</span>
+                        </label>
+                      )} />
+                      <Controller name="possui_endividamento" control={control} render={({ field: { value } }) => (
+                        <>
+                          {value ? (
+                            <>
+                              <p className="text-xs text-amber-800 mb-3">Indique o percentual do endividamento total em cada categoria (total não precisa fechar 100%):</p>
+                              <div className="grid grid-cols-3 gap-3">
+                                {[
+                                  { name: 'endividamento_banco_pct', label: 'Banco' },
+                                  { name: 'endividamento_fornecedor_pct', label: 'Fornecedor' },
+                                  { name: 'endividamento_factoring_pct', label: 'Factoring' },
+                                  { name: 'endividamento_fisco_pct', label: 'Receita Federal' },
+                                  { name: 'endividamento_sefaz_pct', label: 'SEFAZ' },
+                                  { name: 'endividamento_outros_pct', label: 'Outros' },
+                                ].map(({ name, label }) => (
+                                  <div key={name}>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">{label} (%)</label>
+                                    <Controller name={name as any} control={control} render={({ field: f }) => (
+                                      <input
+                                        value={(f.value as any) ?? ''}
+                                        onChange={(e) => f.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.1"
+                                        className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white"
+                                        placeholder="0"
+                                      />
+                                    )} />
+                                  </div>
+                                ))}
+                              </div>
+                            </>
+                          ) : null}
+                        </>
+                      )} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Melhores meses para vendas</label>
+                        <Controller name="melhores_meses_vendas" control={control} render={({ field }) => (
+                          <CheckboxGroup options={MESES_ANO} value={field.value} onChange={field.onChange} cols={3} />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Piores meses para vendas</label>
+                        <Controller name="piores_meses_vendas" control={control} render={({ field }) => (
+                          <CheckboxGroup options={MESES_ANO} value={field.value} onChange={field.onChange} cols={3} />
+                        )} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Principais deficiências em Financeiro</label>
+                      <Controller name="deficiencias_financeiro" control={control} render={({ field }) => (
+                        <CheckboxGroup options={DEFICIENCIAS_FINANCEIRO} value={field.value} onChange={field.onChange} cols={2} />
+                      )} />
+                    </div>
+                  </div>
+                </details>
+
+                {/* MARKETING / VENDAS */}
+                <details className="mb-3 border border-gray-200 rounded-lg overflow-hidden">
+                  <summary className="cursor-pointer px-4 py-3 bg-gray-50 font-semibold text-gray-800 hover:bg-gray-100">
+                    📈 Marketing e Vendas
+                  </summary>
+                  <div className="p-4 space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">A empresa possui ociosidade em vendas?</label>
+                        <Controller name="ociosidade_vendas" control={control} render={({ field }) => (
+                          <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Selecione...</option>
+                            <option value="Não">Não</option>
+                            <option value="Sim, por falta de clientes">Sim, por falta de clientes</option>
+                            <option value="Sim, por problemas logísticos">Sim, por problemas logísticos</option>
+                            <option value="Sim, por outros fatores">Sim, por outros fatores</option>
+                            <option value="Não sei">Não sei</option>
+                          </select>
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Critério para definir preço de vendas</label>
+                        <Controller name="criterio_preco_vendas" control={control} render={({ field }) => (
+                          <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Selecione...</option>
+                            <option value="Base no custo">Com base no custo (markup)</option>
+                            <option value="Base na concorrência">Com base na concorrência</option>
+                            <option value="Base no valor">Com base no valor percebido</option>
+                            <option value="Outra forma">Outra forma</option>
+                          </select>
+                        )} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Posição de preço em relação à concorrência</label>
+                        <Controller name="posicao_preco_concorrencia" control={control} render={({ field }) => (
+                          <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Selecione...</option>
+                            <option value="Igual">Igual à concorrência</option>
+                            <option value="Mais barato">Mais barato que a concorrência</option>
+                            <option value="Mais caro">Mais caro que a concorrência</option>
+                            <option value="Não sei">Não sei</option>
+                          </select>
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">CAC — Custo de Aquisição de Cliente (R$)</label>
+                        <Controller name="cac_novos_clientes" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="150" />
+                        )} />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Como a empresa busca novos clientes?</label>
+                      <Controller name="busca_clientes" control={control} render={({ field }) => (
+                        <CheckboxGroup options={BUSCA_CLIENTES} value={field.value} onChange={field.onChange} cols={2} />
+                      )} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Principais deficiências em Marketing/Vendas</label>
+                      <Controller name="deficiencias_marketing" control={control} render={({ field }) => (
+                        <CheckboxGroup options={DEFICIENCIAS_MARKETING} value={field.value} onChange={field.onChange} cols={2} />
+                      )} />
+                    </div>
+                  </div>
+                </details>
               </div>
 
               {/* Botão */}
