@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -42,51 +42,120 @@ const ICONES_AREA: Record<string, string> = {
   'Gestão de Processos e Governança': '⚖️'
 };
 
-// Lista CNAE simplificada (do Anexo XXVII)
-const ATIVIDADES_CNAE = [
-  'Construção de edifícios',
-  'Obras de infraestrutura',
-  'Serviços especializados para construção',
-  'Transporte terrestre',
-  'Transporte aquaviário',
-  'Transporte aéreo',
-  'Armazenamento e atividades auxiliares dos transportes',
-  'Correio e outras atividades de entrega',
-  'Alojamento',
-  'Alimentação',
-  'Edição e impressão',
-  'Atividades cinematográficas, vídeo e TV',
-  'Atividades de rádio e televisão',
-  'Telecomunicações',
-  'Serviços de tecnologia da informação',
-  'Serviços financeiros',
-  'Seguros, previdência e planos de saúde',
-  'Atividades imobiliárias',
-  'Atividades jurídicas, contábeis e auditoria',
-  'Consultoria em gestão empresarial',
-  'Arquitetura, engenharia e análises técnicas',
-  'Pesquisa e desenvolvimento científico',
-  'Publicidade e pesquisa de mercado',
-  'Outras atividades profissionais, científicas e técnicas',
-  'Atividades veterinárias',
-  'Aluguéis e gestão de ativos intangíveis',
-  'Agenciamento e locação de mão-de-obra',
-  'Agências de viagens e turismo',
-  'Vigilância, segurança e investigação',
-  'Serviços para edifícios e paisagismo',
-  'Serviços administrativos e apoio a empresas',
-  'Educação',
-  'Atenção à saúde humana',
-  'Serviços de assistência social',
-  'Atividades artísticas e de espetáculos',
-  'Patrimônio cultural e ambiental',
-  'Atividades esportivas e de recreação',
-  'Organizações associativas',
-  'Reparação e manutenção de equipamentos',
-  'Outras atividades de serviços pessoais',
-  'Serviços domésticos',
-  'Outros'
-];
+// Lista CNAE por setor (em ordem alfabética)
+const ATIVIDADES_CNAE_POR_SETOR: Record<string, string[]> = {
+  'Comércio': [
+    'Comércio atacadista de produtos agrícolas',
+    'Comércio atacadista de produtos alimentícios',
+    'Comércio atacadista de produtos diversos',
+    'Comércio atacadista especializado',
+    'Comércio de combustíveis',
+    'Comércio de peças e acessórios para veículos',
+    'Comércio de veículos automotores',
+    'Comércio varejista de alimentos',
+    'Comércio varejista de calçados e artigos de viagem',
+    'Comércio varejista de combustíveis e lubrificantes',
+    'Comércio varejista de cosméticos, produtos de perfumaria e higiene pessoal',
+    'Comércio varejista de equipamentos de informática e comunicação',
+    'Comércio varejista de eletrodomésticos e equipamentos de áudio e vídeo',
+    'Comércio varejista de móveis e artigos de iluminação',
+    'Comércio varejista de papelaria e livros',
+    'Comércio varejista de produtos farmacêuticos',
+    'Comércio varejista de tecidos, artigos de armarinho, vestuário e calçados',
+    'Comércio varejista em lojas de departamento',
+    'Comércio varejista especializado em outros produtos',
+    'Manutenção e reparação de veículos automotores',
+    'Mercados, mercearias e supermercados',
+    'Outros'
+  ],
+  'Serviços': [
+    'Agências de viagens e turismo',
+    'Agenciamento e locação de mão-de-obra',
+    'Alimentação',
+    'Alojamento',
+    'Aluguéis e gestão de ativos intangíveis',
+    'Arquitetura, engenharia e análises técnicas',
+    'Armazenamento e atividades auxiliares dos transportes',
+    'Atenção à saúde humana',
+    'Atividades artísticas e de espetáculos',
+    'Atividades cinematográficas, vídeo e TV',
+    'Atividades de rádio e televisão',
+    'Atividades esportivas e de recreação',
+    'Atividades imobiliárias',
+    'Atividades jurídicas, contábeis e auditoria',
+    'Atividades veterinárias',
+    'Consultoria em gestão empresarial',
+    'Correio e outras atividades de entrega',
+    'Edição e impressão',
+    'Educação',
+    'Organizações associativas',
+    'Outras atividades de serviços pessoais',
+    'Outras atividades profissionais, científicas e técnicas',
+    'Patrimônio cultural e ambiental',
+    'Pesquisa e desenvolvimento científico',
+    'Publicidade e pesquisa de mercado',
+    'Reparação e manutenção de equipamentos',
+    'Seguros, previdência e planos de saúde',
+    'Serviços administrativos e apoio a empresas',
+    'Serviços de assistência social',
+    'Serviços de tecnologia da informação',
+    'Serviços domésticos',
+    'Serviços financeiros',
+    'Serviços para edifícios e paisagismo',
+    'Telecomunicações',
+    'Transporte aéreo',
+    'Transporte aquaviário',
+    'Transporte terrestre',
+    'Vigilância, segurança e investigação',
+    'Outros'
+  ],
+  'Indústria': [
+    'Fabricação de alimentos e bebidas',
+    'Fabricação de artigos de borracha e plástico',
+    'Fabricação de artigos têxteis e vestuário',
+    'Fabricação de calçados e artigos de couro',
+    'Fabricação de equipamentos de informática e eletrônicos',
+    'Fabricação de máquinas e equipamentos',
+    'Fabricação de materiais de construção',
+    'Fabricação de móveis',
+    'Fabricação de papel e celulose',
+    'Fabricação de produtos de madeira',
+    'Fabricação de produtos de metal',
+    'Fabricação de produtos farmacêuticos',
+    'Fabricação de produtos minerais não-metálicos',
+    'Fabricação de produtos químicos',
+    'Fabricação de produtos siderúrgicos e metalúrgicos',
+    'Fabricação de veículos automotores e autopeças',
+    'Indústria gráfica',
+    'Indústria têxtil',
+    'Manutenção e reparação de máquinas e equipamentos industriais',
+    'Refino de petróleo e biocombustíveis',
+    'Outros'
+  ],
+  'Produtor Rural': [
+    'Aquicultura',
+    'Atividades de apoio à agricultura',
+    'Atividades de apoio à pecuária',
+    'Avicultura (corte e postura)',
+    'Cultivo de cana-de-açúcar',
+    'Cultivo de cereais (milho, trigo, arroz)',
+    'Cultivo de flores e plantas ornamentais',
+    'Cultivo de frutas',
+    'Cultivo de hortaliças e legumes',
+    'Cultivo de oleaginosas (soja, girassol)',
+    'Cultivo de plantas para café, cacau, fumo',
+    'Cultivo de raízes e tubérculos (mandioca, batata)',
+    'Extração e produção florestal',
+    'Pecuária de corte (bovinos)',
+    'Pecuária leiteira',
+    'Pesca',
+    'Produção de mel e apicultura',
+    'Produção de ovinos e caprinos',
+    'Produção de suínos',
+    'Silvicultura',
+    'Outros'
+  ]
+};
 
 // ============================================================================
 // VALIDAÇÃO
@@ -95,7 +164,7 @@ const ATIVIDADES_CNAE = [
 const ConfigSchema = z.object({
   // Identificação
   empresa_nome: z.string().min(3, 'Nome obrigatório'),
-  setor: z.enum(['Comércio', 'Serviços']),
+  setor: z.enum(['Comércio', 'Serviços', 'Indústria', 'Produtor Rural']),
   porte: z.enum(['Micro', 'Pequena', 'Média', 'Grande']),
 
   // Respondente
@@ -114,6 +183,10 @@ const ConfigSchema = z.object({
   num_funcionarios: z.coerce.number().int().min(0).optional(),
   tempo_mercado_anos: z.coerce.number().int().min(0).optional(),
   atividade_cnae: z.string().optional(),
+  // Renomeados: agora são mensais
+  clientes_atendidos_mes: z.coerce.number().int().min(0).optional(),
+  vendas_servicos_mes: z.coerce.number().int().min(0).optional(),
+  // Compat (deprecated mas mantidos para histórico)
   frequencia_clientes_dia: z.coerce.number().int().min(0).optional(),
   clientes_efetivos_dia: z.coerce.number().int().min(0).optional(),
   area_total_m2: z.coerce.number().min(0).optional(),
@@ -157,13 +230,14 @@ const ConfigSchema = z.object({
   // Estoque
   estoque_medio_mensal: z.coerce.number().min(0).optional(),
   num_itens_portfolio: z.coerce.number().int().min(0).optional(),
-  unidade_medida_estoque: z.string().optional(),
+  unidade_medida_estoque: z.array(z.string()).optional(),  // múltipla seleção
   deficiencias_estoque: z.array(z.string()).optional(),
 
   // Financeiro
   faturamento_mensal: z.coerce.number().min(0).optional(),
   custo_fixo_mensal: z.coerce.number().min(0).optional(),
   custo_variavel_mensal: z.coerce.number().min(0).optional(),
+  despesa_variavel_mensal: z.coerce.number().min(0).optional(),  // NOVO
   possui_endividamento: z.boolean().optional(),
   endividamento_banco_pct: z.coerce.number().min(0).max(100).optional(),
   endividamento_fornecedor_pct: z.coerce.number().min(0).max(100).optional(),
@@ -326,13 +400,55 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
   const [areaFocada, setAreaFocada] = useState<string | null>(null);
   const [respostasOutras, setRespostasOutras] = useState<Record<number, string>>({});
 
-  const { control, handleSubmit, formState: { errors } } = useForm<ConfigFormData>({
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<ConfigFormData>({
     resolver: zodResolver(ConfigSchema),
     defaultValues: {
       setor: 'Comércio',
       porte: 'Pequena'
     }
   });
+
+  // ========================================================================
+  // CAMPOS COMPUTADOS (atualizam em tempo real conforme usuário digita)
+  // ========================================================================
+  const setorAtual = watch('setor');
+  const faturamentoMensal = watch('faturamento_mensal');
+  const custoFixoMensal = watch('custo_fixo_mensal');
+  const custoVariavelMensal = watch('custo_variavel_mensal');
+  const despesaVariavelMensal = watch('despesa_variavel_mensal');
+  const folhaPagamentoMensal = watch('folha_pagamento_mensal');
+  const vendasMes = watch('vendas_servicos_mes');
+
+  // Margem de contribuição (R$ e %)
+  const margemContribuicaoRS = (faturamentoMensal && (custoVariavelMensal != null || despesaVariavelMensal != null))
+    ? Number(faturamentoMensal) - (Number(custoVariavelMensal || 0) + Number(despesaVariavelMensal || 0))
+    : null;
+
+  const margemContribuicaoPct = (margemContribuicaoRS != null && faturamentoMensal && Number(faturamentoMensal) > 0)
+    ? (margemContribuicaoRS / Number(faturamentoMensal)) * 100
+    : null;
+
+  // Ponto de equilíbrio (R$): Custos Fixos / MC%
+  const pontoEquilibrio = (custoFixoMensal != null && margemContribuicaoPct != null && margemContribuicaoPct > 0)
+    ? Number(custoFixoMensal) / (margemContribuicaoPct / 100)
+    : null;
+
+  // % Folha de pagamento sobre faturamento
+  const percentualFolha = (folhaPagamentoMensal != null && faturamentoMensal && Number(faturamentoMensal) > 0)
+    ? (Number(folhaPagamentoMensal) / Number(faturamentoMensal)) * 100
+    : null;
+
+  // Ticket médio: Faturamento / Nº vendas
+  const ticketMedioCalc = (faturamentoMensal && vendasMes && Number(vendasMes) > 0)
+    ? Number(faturamentoMensal) / Number(vendasMes)
+    : null;
+
+  // Sincronizar campos calculados com o form (para salvarem no banco)
+  React.useEffect(() => {
+    if (margemContribuicaoPct != null) setValue('margem_contribuicao_pct', Math.round(margemContribuicaoPct * 10) / 10);
+    if (pontoEquilibrio != null) setValue('ponto_equilibrio', Math.round(pontoEquilibrio * 100) / 100);
+    if (ticketMedioCalc != null) setValue('ticket_medio', Math.round(ticketMedioCalc * 100) / 100);
+  }, [margemContribuicaoPct, pontoEquilibrio, ticketMedioCalc, setValue]);
 
   // ========================================================================
   // HANDLERS
@@ -534,6 +650,8 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                       >
                         <option value="Comércio">Comércio</option>
                         <option value="Serviços">Serviços</option>
+                        <option value="Indústria">Indústria</option>
+                        <option value="Produtor Rural">Produtor Rural</option>
                       </select>
                     )}
                   />
@@ -676,11 +794,13 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                 <h3 className="text-lg font-semibold text-gray-700 mb-4">🏢 Dados do Negócio</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Atividade Econômica (CNAE)</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Atividade Econômica (CNAE) <span className="text-xs text-gray-500 font-normal">— filtrada pelo setor selecionado</span>
+                    </label>
                     <Controller name="atividade_cnae" control={control} render={({ field }) => (
                       <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                         <option value="">Selecione...</option>
-                        {ATIVIDADES_CNAE.map(a => <option key={a} value={a}>{a}</option>)}
+                        {(ATIVIDADES_CNAE_POR_SETOR[setorAtual] || []).map(a => <option key={a} value={a}>{a}</option>)}
                       </select>
                     )} />
                   </div>
@@ -688,7 +808,7 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Faturamento Anual (R$)</label>
                       <Controller name="faturamento_anual" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="1000" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="500000" />
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="500000.00" />
                       )} />
                     </div>
                     <div>
@@ -704,29 +824,17 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                       )} />
                     </div>
                   </div>
-                  <div className="grid grid-cols-4 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Clientes/dia</label>
-                      <Controller name="frequencia_clientes_dia" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="50" />
-                      )} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Clientes efetivos/dia</label>
-                      <Controller name="clientes_efetivos_dia" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="20" />
-                      )} />
-                    </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Área Total (m²)</label>
                       <Controller name="area_total_m2" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="500" />
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="500" />
                       )} />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Área Construída (m²)</label>
                       <Controller name="area_construida_m2" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="300" />
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="300" />
                       )} />
                     </div>
                   </div>
@@ -872,7 +980,7 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                             <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2" placeholder="Qtd" />
                           )} />
                           <Controller name="media_salarial_operacional" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
+                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
                           )} />
                         </div>
                         <div className="border border-gray-200 rounded p-3">
@@ -881,7 +989,7 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                             <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2" placeholder="Qtd" />
                           )} />
                           <Controller name="media_salarial_comercial" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
+                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
                           )} />
                         </div>
                         <div className="border border-gray-200 rounded p-3">
@@ -890,7 +998,7 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                             <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2" placeholder="Qtd" />
                           )} />
                           <Controller name="media_salarial_administrativo" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
+                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
                           )} />
                         </div>
                       </div>
@@ -917,7 +1025,7 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Folha pagamento (R$/mês)</label>
                         <Controller name="folha_pagamento_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0" />
                         )} />
                       </div>
                     </div>
@@ -936,7 +1044,7 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                     📦 Estoque
                   </summary>
                   <div className="p-4 space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Itens no portfólio</label>
                         <Controller name="num_itens_portfolio" control={control} render={({ field: { value, onChange, ...rest } }) => (
@@ -944,20 +1052,17 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                         )} />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Unidade de medida principal</label>
-                        <Controller name="unidade_medida_estoque" control={control} render={({ field }) => (
-                          <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Selecione...</option>
-                            {UNIDADES_MEDIDA.map(u => <option key={u} value={u}>{u}</option>)}
-                          </select>
-                        )} />
-                      </div>
-                      <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Estoque médio mensal (R$)</label>
                         <Controller name="estoque_medio_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="50000" />
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="50000.00" />
                         )} />
                       </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Unidades de medida (marque todas as utilizadas)</label>
+                      <Controller name="unidade_medida_estoque" control={control} render={({ field }) => (
+                        <CheckboxGroup options={UNIDADES_MEDIDA} value={field.value} onChange={field.onChange} cols={5} />
+                      )} />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Principais deficiências em estoque (marque todas)</label>
@@ -974,45 +1079,121 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                     💰 Financeiro
                   </summary>
                   <div className="p-4 space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
+                    {/* Definições por setor */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-900">
+                      <strong>📌 Definições para {setorAtual}:</strong>
+                      {setorAtual === 'Comércio' && (
+                        <ul className="mt-1 ml-5 list-disc">
+                          <li><strong>Custos Variáveis:</strong> Custo de aquisição do produto para revenda (CMV)</li>
+                          <li><strong>Despesas Variáveis:</strong> Impostos sobre vendas, comissões, taxas de cartão, embalagens, frete</li>
+                        </ul>
+                      )}
+                      {setorAtual === 'Serviços' && (
+                        <ul className="mt-1 ml-5 list-disc">
+                          <li><strong>Custos Variáveis:</strong> Hora extra, materiais utilizados no projeto, terceirizados</li>
+                          <li><strong>Despesas Variáveis:</strong> Impostos sobre nota fiscal e taxas de maquininha/plataformas de pagamento</li>
+                        </ul>
+                      )}
+                      {(setorAtual === 'Indústria' || setorAtual === 'Produtor Rural') && (
+                        <ul className="mt-1 ml-5 list-disc">
+                          <li><strong>Custos Variáveis:</strong> Matéria-prima, insumos, energia direta da produção</li>
+                          <li><strong>Despesas Variáveis:</strong> Impostos sobre vendas, comissões, frete</li>
+                        </ul>
+                      )}
+                      <p className="mt-2">
+                        <strong>Custos Fixos:</strong> Aluguel, salários fixos, internet, sistemas, telefone — gastos mensais independentes do volume de vendas
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Faturamento médio mensal (R$)</label>
                         <Controller name="faturamento_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="100000" />
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="100000.00" />
                         )} />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Custo fixo mensal (R$)</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Custo Fixo Mensal (R$)</label>
                         <Controller name="custo_fixo_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="30000" />
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="30000.00" />
                         )} />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Custo variável mensal (R$)</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Custo Variável Mensal (R$)</label>
                         <Controller name="custo_variavel_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="40000" />
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="40000.00" />
+                        )} />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Despesa Variável Mensal (R$)</label>
+                        <Controller name="despesa_variavel_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="10000.00" />
                         )} />
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
+
+                    {/* Atendimento e Vendas (movido pra cá) */}
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Ticket médio (R$)</label>
-                        <Controller name="ticket_medio" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="200" />
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Nº Clientes atendidos no mês</label>
+                        <Controller name="clientes_atendidos_mes" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="500" />
                         )} />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Margem de contribuição (%)</label>
-                        <Controller name="margem_contribuicao_pct" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" max="100" step="0.1" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="35" />
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Nº Vendas/Serviços realizados no mês</label>
+                        <Controller name="vendas_servicos_mes" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="200" />
                         )} />
                       </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Ponto de equilíbrio (R$/mês)</label>
-                        <Controller name="ponto_equilibrio" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="60000" />
-                        )} />
+                    </div>
+
+                    {/* Indicadores Calculados Automaticamente */}
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-4">
+                      <h4 className="text-sm font-bold text-green-900 mb-3 flex items-center gap-2">
+                        🧮 Indicadores Calculados Automaticamente
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="bg-white rounded p-3 border border-green-200">
+                          <div className="text-xs text-gray-600 mb-1">Ticket Médio</div>
+                          <div className="text-lg font-bold text-green-700">
+                            {ticketMedioCalc != null
+                              ? ticketMedioCalc.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                              : '—'}
+                          </div>
+                          <div className="text-[10px] text-gray-500">Faturamento ÷ Nº Vendas</div>
+                        </div>
+                        <div className="bg-white rounded p-3 border border-green-200">
+                          <div className="text-xs text-gray-600 mb-1">Margem Contribuição</div>
+                          <div className="text-lg font-bold text-green-700">
+                            {margemContribuicaoRS != null
+                              ? margemContribuicaoRS.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                              : '—'}
+                          </div>
+                          <div className="text-[10px] text-gray-500">
+                            {margemContribuicaoPct != null ? `${margemContribuicaoPct.toFixed(1)}%` : '—'}
+                          </div>
+                        </div>
+                        <div className="bg-white rounded p-3 border border-green-200">
+                          <div className="text-xs text-gray-600 mb-1">Ponto de Equilíbrio</div>
+                          <div className="text-lg font-bold text-green-700">
+                            {pontoEquilibrio != null
+                              ? pontoEquilibrio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                              : '—'}
+                          </div>
+                          <div className="text-[10px] text-gray-500">Custo Fixo ÷ MC%</div>
+                        </div>
+                        <div className="bg-white rounded p-3 border border-green-200">
+                          <div className="text-xs text-gray-600 mb-1">% Folha sobre Receita</div>
+                          <div className={`text-lg font-bold ${percentualFolha != null && percentualFolha > 30 ? 'text-red-700' : percentualFolha != null && percentualFolha > 20 ? 'text-orange-700' : 'text-green-700'}`}>
+                            {percentualFolha != null ? `${percentualFolha.toFixed(1)}%` : '—'}
+                          </div>
+                          <div className="text-[10px] text-gray-500">Saudável: até 20%</div>
+                        </div>
                       </div>
+                      <p className="text-xs text-green-800 mt-3 italic">
+                        ℹ️ Preencha Faturamento, Custos Variáveis, Despesas Variáveis, Custos Fixos, Folha de Pagamento e Nº de Vendas para ver todos os indicadores.
+                      </p>
                     </div>
 
                     {/* Endividamento */}

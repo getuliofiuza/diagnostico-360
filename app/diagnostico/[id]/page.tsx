@@ -53,6 +53,8 @@ interface DiagnosticoData {
   tempo_mercado_anos?: number
   frequencia_clientes_dia?: number
   clientes_efetivos_dia?: number
+  clientes_atendidos_mes?: number
+  vendas_servicos_mes?: number
   area_total_m2?: number
   area_construida_m2?: number
   tempo_gestor_anos?: number
@@ -78,11 +80,12 @@ interface DiagnosticoData {
   gargalos_rh?: string[]
   estoque_medio_mensal?: number
   num_itens_portfolio?: number
-  unidade_medida_estoque?: string
+  unidade_medida_estoque?: string | string[]
   deficiencias_estoque?: string[]
   faturamento_mensal?: number
   custo_fixo_mensal?: number
   custo_variavel_mensal?: number
+  despesa_variavel_mensal?: number
   possui_endividamento?: boolean
   endividamento_banco_pct?: number
   endividamento_fornecedor_pct?: number
@@ -621,8 +624,6 @@ function DadosDaEmpresaSection({ data }: { data: DiagnosticoData }) {
           <Field label="Faturamento Anual" value={fmtBRL(data.faturamento_anual)} />
           <Field label="Funcionários" value={data.num_funcionarios} />
           <Field label="Tempo de mercado" value={data.tempo_mercado_anos ? `${data.tempo_mercado_anos} anos` : null} />
-          <Field label="Clientes/dia" value={data.frequencia_clientes_dia} />
-          <Field label="Clientes efetivos/dia" value={data.clientes_efetivos_dia} />
           <Field label="Área total" value={data.area_total_m2 ? `${data.area_total_m2} m²` : null} />
           <Field label="Área construída" value={data.area_construida_m2 ? `${data.area_construida_m2} m²` : null} />
         </div>
@@ -714,7 +715,12 @@ function DadosDaEmpresaSection({ data }: { data: DiagnosticoData }) {
         <Section title="Estoque" icon="📦">
           <div className="grid grid-cols-3 gap-3">
             <Field label="Itens portfólio" value={data.num_itens_portfolio} />
-            <Field label="Unidade de medida" value={data.unidade_medida_estoque} />
+            <Field
+              label="Unidade de medida"
+              value={Array.isArray(data.unidade_medida_estoque)
+                ? data.unidade_medida_estoque.join(', ')
+                : data.unidade_medida_estoque}
+            />
             <Field label="Estoque médio mensal" value={fmtBRL(data.estoque_medio_mensal)} />
           </div>
           {data.deficiencias_estoque && data.deficiencias_estoque.length > 0 && (
@@ -731,10 +737,13 @@ function DadosDaEmpresaSection({ data }: { data: DiagnosticoData }) {
       {/* Financeiro */}
       {(data.faturamento_mensal || data.custo_fixo_mensal || data.ticket_medio || temEndiv) && (
         <Section title="Financeiro" icon="💰">
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
             <Field label="Faturamento mensal" value={fmtBRL(data.faturamento_mensal)} />
             <Field label="Custo fixo" value={fmtBRL(data.custo_fixo_mensal)} />
             <Field label="Custo variável" value={fmtBRL(data.custo_variavel_mensal)} />
+            <Field label="Despesa variável" value={fmtBRL(data.despesa_variavel_mensal)} />
+            <Field label="Clientes atendidos/mês" value={data.clientes_atendidos_mes} />
+            <Field label="Vendas/serviços/mês" value={data.vendas_servicos_mes} />
             <Field label="Ticket médio" value={fmtBRL(data.ticket_medio)} />
             <Field label="Margem de contribuição" value={fmtPct(data.margem_contribuicao_pct)} />
             <Field label="Ponto de equilíbrio" value={fmtBRL(data.ponto_equilibrio)} />

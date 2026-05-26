@@ -8,7 +8,9 @@
 
 export enum Setor {
   COMERCIO = 'Comércio',
-  SERVICOS = 'Serviços'
+  SERVICOS = 'Serviços',
+  INDUSTRIA = 'Indústria',
+  PRODUTOR_RURAL = 'Produtor Rural'
 }
 
 export enum Porte {
