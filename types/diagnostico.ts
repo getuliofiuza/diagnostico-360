@@ -27,7 +27,8 @@ export enum Area {
   RELACOES = 'Relações Institucionais',
   LOGISTICA = 'Logística',
   MARKETING = 'Marketing e Vendas',
-  TENDENCIAS = 'Projeções e Tendências'
+  TENDENCIAS = 'Projeções e Tendências',
+  GOVERNANCA = 'Gestão de Processos e Governança'
 }
 
 export enum NivelMaturidade {
@@ -233,11 +234,13 @@ export const AREAS_DIAGNOSTICO = [
   Area.RELACOES,
   Area.LOGISTICA,
   Area.MARKETING,
-  Area.TENDENCIAS
+  Area.TENDENCIAS,
+  Area.GOVERNANCA
 ];
 
 export const CRITICIDADE_POR_AREA: Record<Area, number> = {
   [Area.FINANCEIRO]: 3.0,
+  [Area.GOVERNANCA]: 2.5,
   [Area.TECNOLOGIA]: 2.0,
   [Area.RH]: 2.0,
   [Area.PLANEJAMENTO]: 1.5,
@@ -253,7 +256,8 @@ export const PESOS_RESPOSTA = {
   'B': 8,
   'C': 6,
   'D': 4,
-  'E': 2
+  'E': 2,
+  'F': 0
 };
 
 export const FAIXAS_MATURIDADE = {

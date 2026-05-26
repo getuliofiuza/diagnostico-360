@@ -25,7 +25,8 @@ const ORDEM_AREAS = [
   'Relações Institucionais',
   'Logística',
   'Marketing e Vendas',
-  'Projeções e Tendências'
+  'Projeções e Tendências',
+  'Gestão de Processos e Governança'
 ] as const;
 
 const ICONES_AREA: Record<string, string> = {
@@ -37,24 +38,99 @@ const ICONES_AREA: Record<string, string> = {
   'Relações Institucionais': '🤝',
   'Logística': '🚛',
   'Marketing e Vendas': '📈',
-  'Projeções e Tendências': '🔮'
+  'Projeções e Tendências': '🔮',
+  'Gestão de Processos e Governança': '⚖️'
 };
+
+// Lista CNAE simplificada (do Anexo XXVII)
+const ATIVIDADES_CNAE = [
+  'Construção de edifícios',
+  'Obras de infraestrutura',
+  'Serviços especializados para construção',
+  'Transporte terrestre',
+  'Transporte aquaviário',
+  'Transporte aéreo',
+  'Armazenamento e atividades auxiliares dos transportes',
+  'Correio e outras atividades de entrega',
+  'Alojamento',
+  'Alimentação',
+  'Edição e impressão',
+  'Atividades cinematográficas, vídeo e TV',
+  'Atividades de rádio e televisão',
+  'Telecomunicações',
+  'Serviços de tecnologia da informação',
+  'Serviços financeiros',
+  'Seguros, previdência e planos de saúde',
+  'Atividades imobiliárias',
+  'Atividades jurídicas, contábeis e auditoria',
+  'Consultoria em gestão empresarial',
+  'Arquitetura, engenharia e análises técnicas',
+  'Pesquisa e desenvolvimento científico',
+  'Publicidade e pesquisa de mercado',
+  'Outras atividades profissionais, científicas e técnicas',
+  'Atividades veterinárias',
+  'Aluguéis e gestão de ativos intangíveis',
+  'Agenciamento e locação de mão-de-obra',
+  'Agências de viagens e turismo',
+  'Vigilância, segurança e investigação',
+  'Serviços para edifícios e paisagismo',
+  'Serviços administrativos e apoio a empresas',
+  'Educação',
+  'Atenção à saúde humana',
+  'Serviços de assistência social',
+  'Atividades artísticas e de espetáculos',
+  'Patrimônio cultural e ambiental',
+  'Atividades esportivas e de recreação',
+  'Organizações associativas',
+  'Reparação e manutenção de equipamentos',
+  'Outras atividades de serviços pessoais',
+  'Serviços domésticos',
+  'Outros'
+];
 
 // ============================================================================
 // VALIDAÇÃO
 // ============================================================================
 
 const ConfigSchema = z.object({
+  // Identificação
   empresa_nome: z.string().min(3, 'Nome obrigatório'),
   setor: z.enum(['Comércio', 'Serviços']),
   porte: z.enum(['Micro', 'Pequena', 'Média', 'Grande']),
+
+  // Respondente
   respondente_nome: z.string().min(2, 'Nome obrigatório'),
   respondente_email: z.string().email('Email inválido'),
   respondente_telefone: z.string().optional(),
+
+  // Localização (do Anexo XXVII)
   endereco: z.string().optional(),
+  municipio: z.string().optional(),
+  microrregiao: z.string().optional(),
+  mesorregiao: z.string().optional(),
+
+  // Dados do negócio
   faturamento_anual: z.coerce.number().min(0).optional(),
   num_funcionarios: z.coerce.number().int().min(0).optional(),
-  tempo_mercado_anos: z.coerce.number().int().min(0).optional()
+  tempo_mercado_anos: z.coerce.number().int().min(0).optional(),
+  atividade_cnae: z.string().optional(),
+  frequencia_clientes_dia: z.coerce.number().int().min(0).optional(),
+  clientes_efetivos_dia: z.coerce.number().int().min(0).optional(),
+  area_total_m2: z.coerce.number().min(0).optional(),
+  area_construida_m2: z.coerce.number().min(0).optional(),
+  possui_filiais: z.boolean().optional(),
+  num_filiais: z.coerce.number().int().min(0).optional(),
+
+  // Gestor principal
+  tempo_gestor_anos: z.coerce.number().min(0).optional(),
+  idade_gestor_faixa: z.string().optional(),
+  origem_gestor: z.string().optional(),
+  escolaridade_gestor: z.string().optional(),
+
+  // Qualitativos (sugestões do usuário)
+  narrativa_gestor: z.string().optional(),
+  diferencial_competitivo: z.string().optional(),
+  dores_principais: z.string().optional()
 });
 
 type ConfigFormData = z.infer<typeof ConfigSchema>;
@@ -153,9 +229,24 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
           respondente_email: config.respondente_email,
           respondente_telefone: config.respondente_telefone,
           endereco: config.endereco,
+          municipio: config.municipio,
+          microrregiao: config.microrregiao,
+          mesorregiao: config.mesorregiao,
           faturamento_anual: config.faturamento_anual,
           num_funcionarios: config.num_funcionarios,
           tempo_mercado_anos: config.tempo_mercado_anos,
+          atividade_cnae: config.atividade_cnae,
+          frequencia_clientes_dia: config.frequencia_clientes_dia,
+          clientes_efetivos_dia: config.clientes_efetivos_dia,
+          area_total_m2: config.area_total_m2,
+          area_construida_m2: config.area_construida_m2,
+          tempo_gestor_anos: config.tempo_gestor_anos,
+          idade_gestor_faixa: config.idade_gestor_faixa,
+          origem_gestor: config.origem_gestor,
+          escolaridade_gestor: config.escolaridade_gestor,
+          narrativa_gestor: config.narrativa_gestor,
+          diferencial_competitivo: config.diferencial_competitivo,
+          dores_principais: config.dores_principais,
           respostas: respostasFormatadas
         })
       });
@@ -406,70 +497,177 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                 />
               </div>
 
-              {/* Dados quantitativos do negócio */}
+              {/* Localização */}
               <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">Dados do Negócio (opcionais, ajudam a personalizar o diagnóstico)</h3>
+                <h3 className="text-lg font-semibold text-gray-700 mb-4">📍 Localização</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Faturamento Anual (R$)
-                    </label>
-                    <Controller
-                      name="faturamento_anual"
-                      control={control}
-                      render={({ field: { value, onChange, ...rest } }) => (
-                        <input
-                          {...rest}
-                          value={value ?? ''}
-                          onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                          type="number"
-                          min="0"
-                          step="1000"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                          placeholder="500000"
-                        />
-                      )}
-                    />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Município</label>
+                    <Controller name="municipio" control={control} render={({ field }) => (
+                      <input {...field} type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Porto Velho" />
+                    )} />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nº Funcionários
-                    </label>
-                    <Controller
-                      name="num_funcionarios"
-                      control={control}
-                      render={({ field: { value, onChange, ...rest } }) => (
-                        <input
-                          {...rest}
-                          value={value ?? ''}
-                          onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                          type="number"
-                          min="0"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                          placeholder="15"
-                        />
-                      )}
-                    />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Microrregião</label>
+                    <Controller name="microrregiao" control={control} render={({ field }) => (
+                      <input {...field} type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: Porto Velho" />
+                    )} />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Tempo Mercado (anos)
-                    </label>
-                    <Controller
-                      name="tempo_mercado_anos"
-                      control={control}
-                      render={({ field: { value, onChange, ...rest } }) => (
-                        <input
-                          {...rest}
-                          value={value ?? ''}
-                          onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                          type="number"
-                          min="0"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                          placeholder="5"
-                        />
-                      )}
-                    />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Mesorregião</label>
+                    <Controller name="mesorregiao" control={control} render={({ field }) => (
+                      <input {...field} type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: Madeira-Guaporé" />
+                    )} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Dados do Negócio */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-700 mb-4">🏢 Dados do Negócio</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Atividade Econômica (CNAE)</label>
+                    <Controller name="atividade_cnae" control={control} render={({ field }) => (
+                      <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Selecione...</option>
+                        {ATIVIDADES_CNAE.map(a => <option key={a} value={a}>{a}</option>)}
+                      </select>
+                    )} />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Faturamento Anual (R$)</label>
+                      <Controller name="faturamento_anual" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="1000" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="500000" />
+                      )} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Nº Funcionários</label>
+                      <Controller name="num_funcionarios" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="15" />
+                      )} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Tempo Mercado (anos)</label>
+                      <Controller name="tempo_mercado_anos" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="5" />
+                      )} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Clientes/dia</label>
+                      <Controller name="frequencia_clientes_dia" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="50" />
+                      )} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Clientes efetivos/dia</label>
+                      <Controller name="clientes_efetivos_dia" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="20" />
+                      )} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Área Total (m²)</label>
+                      <Controller name="area_total_m2" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="500" />
+                      )} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Área Construída (m²)</label>
+                      <Controller name="area_construida_m2" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="300" />
+                      )} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Gestor Principal */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-700 mb-4">👔 Sobre o Gestor Principal</h3>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Tempo na função (anos)</label>
+                    <Controller name="tempo_gestor_anos" control={control} render={({ field: { value, onChange, ...rest } }) => (
+                      <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.5" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="3" />
+                    )} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Faixa Etária</label>
+                    <Controller name="idade_gestor_faixa" control={control} render={({ field }) => (
+                      <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Selecione...</option>
+                        <option value="18-25">Entre 18 e 25 anos</option>
+                        <option value="26-35">Entre 26 e 35 anos</option>
+                        <option value="36-45">Entre 36 e 45 anos</option>
+                        <option value="46-55">Entre 46 e 55 anos</option>
+                        <option value="56-65">Entre 56 e 65 anos</option>
+                        <option value="65+">Acima de 65 anos</option>
+                      </select>
+                    )} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Origem</label>
+                    <Controller name="origem_gestor" control={control} render={({ field }) => (
+                      <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Selecione...</option>
+                        <option value="Rondônia">Rondônia</option>
+                        <option value="Outros Região Norte">Outros Região Norte</option>
+                        <option value="Região Sul">Região Sul</option>
+                        <option value="Região Sudeste">Região Sudeste</option>
+                        <option value="Região Nordeste">Região Nordeste</option>
+                        <option value="Região Centro-Oeste">Região Centro-Oeste</option>
+                        <option value="Exterior">Exterior</option>
+                      </select>
+                    )} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Escolaridade</label>
+                    <Controller name="escolaridade_gestor" control={control} render={({ field }) => (
+                      <select {...field} value={field.value || ''} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Selecione...</option>
+                        <option value="Analfabeto">Analfabeto</option>
+                        <option value="EFI">Ensino Fundamental Incompleto</option>
+                        <option value="EFC">Ensino Fundamental Completo</option>
+                        <option value="EMI">Ensino Médio Incompleto</option>
+                        <option value="EMC">Ensino Médio Completo</option>
+                        <option value="ETP">Ensino Técnico Profissionalizante</option>
+                        <option value="ESI">Ensino Superior Incompleto</option>
+                        <option value="ESC">Ensino Superior Completo</option>
+                        <option value="Pós-graduado">Pós-graduado</option>
+                      </select>
+                    )} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Narrativa do Gestor */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">📖 Jornada e Contexto do Gestor</h3>
+                <p className="text-sm text-gray-500 mb-4">Essas respostas qualitativas enriquecem a análise interpretativa do diagnóstico.</p>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Breve narrativa da jornada do gestor</label>
+                    <Controller name="narrativa_gestor" control={control} render={({ field }) => (
+                      <textarea {...field} value={field.value || ''} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Conte rapidamente a história da empresa: como começou, marcos importantes, momento atual..." />
+                    )} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Diferencial competitivo da empresa</label>
+                    <Controller name="diferencial_competitivo" control={control} render={({ field }) => (
+                      <textarea {...field} value={field.value || ''} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="O que faz sua empresa ser escolhida em vez da concorrência?" />
+                    )} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Dores que mais incomodam o gestor hoje</label>
+                    <Controller name="dores_principais" control={control} render={({ field }) => (
+                      <textarea {...field} value={field.value || ''} rows={3} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Quais são os principais desafios e dores que tiram seu sono?" />
+                    )} />
                   </div>
                 </div>
               </div>

@@ -80,6 +80,7 @@ export async function GET(
       { area: 'Logística', escore: diagnostico.escore_logistica },
       { area: 'Marketing e Vendas', escore: diagnostico.escore_marketing },
       { area: 'Projeções e Tendências', escore: diagnostico.escore_tendencias },
+      { area: 'Gestão de Processos e Governança', escore: diagnostico.escore_governanca },
     ];
 
     const escores = todasAreas

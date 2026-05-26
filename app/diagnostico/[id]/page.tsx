@@ -117,6 +117,10 @@ const IMPACTOS_AREA: Record<string, { medio: string; longo: string }> = {
   'PROJECOES E TENDENCIAS': {
     medio: 'Surpresas com mudancas de mercado, decisoes baseadas em intuicao',
     longo: 'Obsolescencia do modelo de negocio, perda de relevancia, disrupcao por concorrentes'
+  },
+  'GESTAO DE PROCESSOS E GOVERNANCA': {
+    medio: 'Retrabalho, dependencia de "herois operacionais", decisoes centralizadas geram gargalos',
+    longo: 'Colapso institucional se lideranca se afasta, exposicao a passivos juridicos, impossibilidade de escalar'
   }
 }
 

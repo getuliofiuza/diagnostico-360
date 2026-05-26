@@ -11,7 +11,7 @@ export default function HomePage() {
           Diagnóstico Empresarial <span className="text-primary-600">360</span>
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-          Avalie a maturidade operacional da sua empresa em 9 áreas estratégicas.
+          Avalie a maturidade operacional da sua empresa em 10 áreas estratégicas.
           Receba um plano de ação personalizado em minutos.
         </p>
         <div className="flex gap-4 justify-center">
@@ -32,7 +32,7 @@ export default function HomePage() {
 
       {/* 9 Areas */}
       <div className="mb-16">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">9 Áreas de Análise</h2>
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">10 Áreas de Análise</h2>
         <p className="text-gray-500 text-center mb-8">Cada área recebe um escore de 0 a 10 baseado nas respostas do diagnóstico</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
@@ -107,6 +107,14 @@ export default function HomePage() {
               peso: 'Normal',
               benchmark: 5.5,
               avalia: ['Inovação e adaptação', 'Análise de tendências', 'Planejamento futuro']
+            },
+            {
+              area: 'Gestão de Processos e Governança',
+              icon: '⚖️',
+              questoes: 10,
+              peso: 'Crítico',
+              benchmark: 4.5,
+              avalia: ['Maturidade e estrutura de processos', 'Governança e accountability', 'Gestão de riscos e sucessão']
             },
           ].map((item) => (
             <div key={item.area} className="bg-white rounded-xl p-5 border border-gray-200">

@@ -39,9 +39,24 @@ const CreateDiagnosticoSchema = z.object({
   respondente_email: z.string().email('Email inválido'),
   respondente_telefone: z.string().optional().nullable(),
   endereco: z.string().optional().nullable(),
+  municipio: z.string().optional().nullable(),
+  microrregiao: z.string().optional().nullable(),
+  mesorregiao: z.string().optional().nullable(),
   faturamento_anual: z.number().optional().nullable(),
   num_funcionarios: z.number().int().optional().nullable(),
   tempo_mercado_anos: z.number().int().optional().nullable(),
+  atividade_cnae: z.string().optional().nullable(),
+  frequencia_clientes_dia: z.number().int().optional().nullable(),
+  clientes_efetivos_dia: z.number().int().optional().nullable(),
+  area_total_m2: z.number().optional().nullable(),
+  area_construida_m2: z.number().optional().nullable(),
+  tempo_gestor_anos: z.number().optional().nullable(),
+  idade_gestor_faixa: z.string().optional().nullable(),
+  origem_gestor: z.string().optional().nullable(),
+  escolaridade_gestor: z.string().optional().nullable(),
+  narrativa_gestor: z.string().optional().nullable(),
+  diferencial_competitivo: z.string().optional().nullable(),
+  dores_principais: z.string().optional().nullable(),
   respostas: z.array(
     z.object({
       questao_id: z.number(),
@@ -75,6 +90,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const v = validacao.data as any;
     const {
       tenant_id,
       empresa_nome,
@@ -84,17 +100,26 @@ export async function POST(request: NextRequest) {
       respondente_email,
       respondente_telefone,
       endereco,
+      municipio,
+      microrregiao,
+      mesorregiao,
       faturamento_anual,
       num_funcionarios,
       tempo_mercado_anos,
+      atividade_cnae,
+      frequencia_clientes_dia,
+      clientes_efetivos_dia,
+      area_total_m2,
+      area_construida_m2,
+      tempo_gestor_anos,
+      idade_gestor_faixa,
+      origem_gestor,
+      escolaridade_gestor,
+      narrativa_gestor,
+      diferencial_competitivo,
+      dores_principais,
       respostas
-    } = validacao.data as CreateDiagnosticoRequest & {
-      respondente_telefone?: string | null;
-      endereco?: string | null;
-      faturamento_anual?: number | null;
-      num_funcionarios?: number | null;
-      tempo_mercado_anos?: number | null;
-    };
+    } = v;
 
     // 3. Inicializar Supabase (service role para bypass de RLS)
     const supabase = createClient(
@@ -146,9 +171,24 @@ export async function POST(request: NextRequest) {
         respondente_email,
         respondente_telefone: respondente_telefone || null,
         endereco: endereco || null,
+        municipio: municipio || null,
+        microrregiao: microrregiao || null,
+        mesorregiao: mesorregiao || null,
         faturamento_anual: faturamento_anual ?? null,
         num_funcionarios: num_funcionarios ?? null,
         tempo_mercado_anos: tempo_mercado_anos ?? null,
+        atividade_cnae: atividade_cnae || null,
+        frequencia_clientes_dia: frequencia_clientes_dia ?? null,
+        clientes_efetivos_dia: clientes_efetivos_dia ?? null,
+        area_total_m2: area_total_m2 ?? null,
+        area_construida_m2: area_construida_m2 ?? null,
+        tempo_gestor_anos: tempo_gestor_anos ?? null,
+        idade_gestor_faixa: idade_gestor_faixa || null,
+        origem_gestor: origem_gestor || null,
+        escolaridade_gestor: escolaridade_gestor || null,
+        narrativa_gestor: narrativa_gestor || null,
+        diferencial_competitivo: diferencial_competitivo || null,
+        dores_principais: dores_principais || null,
         setor,
         porte,
         ...escoresMap,
@@ -173,13 +213,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 13. Inserir respostas detalhadas
-    const respostasInsert = respostas.map(r => ({
+    const respostasInsert = respostas.map((r: any) => ({
       diagnostico_id: diagnostico.id,
       questao_id: r.questao_id,
       resposta: r.resposta,
       pontos: r.pontos,
       tema: r.tema,
-      resposta_texto: (r as any).resposta_texto || null
+      resposta_texto: r.resposta_texto || null
     }));
 
     const { error: respostasError } = await supabase
@@ -271,7 +311,8 @@ function mapearAreaParaColuna(area: string): string {
     'Relações Institucionais': 'escore_relacoes',
     'Logística': 'escore_logistica',
     'Marketing e Vendas': 'escore_marketing',
-    'Projeções e Tendências': 'escore_tendencias'
+    'Projeções e Tendências': 'escore_tendencias',
+    'Gestão de Processos e Governança': 'escore_governanca'
   };
   return mapa[area] || '';
 }

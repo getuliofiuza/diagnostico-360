@@ -559,6 +559,53 @@ function obterRecomendacoes(): Recomendacao[] {
       fase: FasePDI.LONGO_PRAZO
     },
 
+    // GESTÃO DE PROCESSOS E GOVERNANÇA
+    {
+      area: Area.GOVERNANCA,
+      min_escore: 0,
+      max_escore: 2,
+      descricao: 'Identificar o processo mais crítico e doloroso, documentar apenas ele em 2 passos. Estabelecer teto de gastos sem aprovação',
+      prazo: '15-30 dias',
+      meta_escore: 5,
+      fase: FasePDI.IMEDIATA
+    },
+    {
+      area: Area.GOVERNANCA,
+      min_escore: 2.1,
+      max_escore: 4,
+      descricao: 'Mapear 5 principais tarefas de cada colaborador. Criar matriz RACI básica para áreas críticas',
+      prazo: '30-60 dias',
+      meta_escore: 6,
+      fase: FasePDI.IMEDIATA
+    },
+    {
+      area: Area.GOVERNANCA,
+      min_escore: 4.1,
+      max_escore: 6,
+      descricao: 'Implementar rotinas semanais de acompanhamento. Definir 3-5 KPIs principais. Formalizar Matriz RACI completa',
+      prazo: '60-90 dias',
+      meta_escore: 7.5,
+      fase: FasePDI.CURTO_PRAZO
+    },
+    {
+      area: Area.GOVERNANCA,
+      min_escore: 6.1,
+      max_escore: 8,
+      descricao: 'Estruturar comitês temáticos (financeiro, compliance). Implementar gestão de riscos e plano de sucessão',
+      prazo: '90+ dias',
+      meta_escore: 8.5,
+      fase: FasePDI.LONGO_PRAZO
+    },
+    {
+      area: Area.GOVERNANCA,
+      min_escore: 8.1,
+      max_escore: 10,
+      descricao: 'Hiper automação dos processos repetitivos. Conselho consultivo ativo. Governança como diferencial competitivo para investimentos/expansão',
+      prazo: 'Contínuo',
+      meta_escore: 9.5,
+      fase: FasePDI.LONGO_PRAZO
+    },
+
     // PROJEÇÕES E TENDÊNCIAS
     {
       area: Area.TENDENCIAS,
@@ -636,7 +683,8 @@ export function compararComBenchmark(
     [Area.RELACOES]: 6.0,
     [Area.LOGISTICA]: 5.5,
     [Area.MARKETING]: 6.3,
-    [Area.TENDENCIAS]: 4.8
+    [Area.TENDENCIAS]: 4.8,
+    [Area.GOVERNANCA]: 4.5
   };
 
   return escores.map(escore => {
