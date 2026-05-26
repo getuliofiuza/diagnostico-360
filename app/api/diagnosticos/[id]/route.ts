@@ -51,16 +51,22 @@ export async function GET(
       .eq('diagnostico_id', params.id)
       .order('fase', { ascending: true });
 
-    // 5. Recuperar benchmark do banco
-    const { data: benchmarkData } = await supabase
-      .from('diagnosticos_360_benchmark')
-      .select('area, escore_media')
-      .eq('setor', diagnostico.setor)
-      .eq('porte', diagnostico.porte);
-
-    const benchmark = (benchmarkData || []).map(b => ({
-      area: b.area,
-      media_setor: b.escore_media,
+    // 5. Benchmark (valores de referência por área/setor)
+    const benchmarkPorArea: Record<string, number> = {
+      'Planejamento e Estratégia': 6.1,
+      'Recursos Humanos': diagnostico.setor === 'Serviços' ? 7.2 : 5.8,
+      'Estoque': 5.8,
+      'Financeiro': 5.5,
+      'Tecnologia da Informação': 5.0,
+      'Relações Institucionais': 6.0,
+      'Logística': 5.5,
+      'Marketing e Vendas': 6.3,
+      'Projeções e Tendências': 4.8,
+      'Gestão de Processos e Governança': 4.5,
+    };
+    const benchmark = Object.entries(benchmarkPorArea).map(([area, media_setor]) => ({
+      area,
+      media_setor,
     }));
 
     // 6. Gerar dados para radar

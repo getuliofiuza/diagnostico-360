@@ -160,7 +160,7 @@ export default function HomePage() {
             { step: '1', title: 'Configure', desc: 'Informe dados da empresa, setor e porte' },
             { step: '2', title: 'Responda', desc: 'Responda as questões do diagnóstico' },
             { step: '3', title: 'Analise', desc: 'Veja escores, riscos e maturidade' },
-            { step: '4', title: 'Ação', desc: 'Receba plano de desenvolvimento (PDI)' },
+            { step: '4', title: 'Ação', desc: 'Receba seu Plano de Desenvolvimento Empresarial (PDE)' },
           ].map((item) => (
             <div key={item.step} className="text-center">
               <div className="w-12 h-12 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-3">

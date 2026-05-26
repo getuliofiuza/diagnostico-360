@@ -32,6 +32,7 @@ const LABEL_CURTO: Record<string, string> = {
   'Logística': 'Logística',
   'Marketing e Vendas': 'Marketing',
   'Projeções e Tendências': 'Tendências',
+  'Gestão de Processos e Governança': 'Governança',
 }
 
 function CustomTooltip({ active, payload }: any) {

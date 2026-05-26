@@ -778,7 +778,7 @@ export function gerarNarrativa(
     narrativa += `RECOMENDAÇÃO: Continuar evoluindo com foco em otimização contínua. `;
   }
 
-  narrativa += `Um plano detalhado (PDI) foi gerado para sua ação.`;
+  narrativa += `Um Plano de Desenvolvimento Empresarial (PDE) detalhado foi gerado para sua ação.`;
 
   return narrativa;
 }

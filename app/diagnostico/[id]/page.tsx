@@ -394,10 +394,10 @@ export default function DiagnosticoResultadoPage() {
         </div>
       )}
 
-      {/* PDI */}
+      {/* PDE */}
       {data.pdi && data.pdi.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Plano de Desenvolvimento (PDI)</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Plano de Desenvolvimento Empresarial (PDE)</h2>
 
           {[1, 2, 3].map(fase => {
             const acoesFase = data.pdi.filter(a => a.fase === fase)
