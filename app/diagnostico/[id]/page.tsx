@@ -109,7 +109,7 @@ interface DiagnosticoData {
   matriz_risco: RiscoItem[]
   pdi: PDIItem[]
   narrativa: string
-  benchmark?: Array<{ area: string; media_setor: number }>
+  benchmark?: Array<{ area: string; media_setor: number; meta_bg?: number; fonte?: string }>
   radar_data?: Array<{ area: string; escore: number }>
   observacoes?: ObservacaoItem[]
 }
@@ -284,7 +284,9 @@ export default function DiagnosticoResultadoPage() {
       {/* Radar Chart */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
         <h2 className="text-xl font-bold text-gray-900 mb-2">Visão Geral - Radar de Maturidade</h2>
-        <p className="text-sm text-gray-500 mb-4">Comparativo dos escores da sua empresa com a média do setor ({data.setor})</p>
+        <p className="text-sm text-gray-500 mb-4">
+          Compare sua empresa com a média nacional das MPEs ({data.setor}) e a meta B&G de excelência operacional.
+        </p>
         <RadarChartDiagnostico
           escores={data.escores}
           benchmark={data.benchmark}

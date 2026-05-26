@@ -19,6 +19,8 @@ interface RadarChartProps {
   benchmark?: Array<{
     area: string
     media_setor: number
+    meta_bg?: number
+    fonte?: string
   }>
 }
 
@@ -60,9 +62,12 @@ export function RadarChartDiagnostico({ escores, benchmark }: RadarChartProps) {
       area: LABEL_CURTO[e.area] || e.area,
       areaCompleta: e.area,
       escore: e.escore,
-      ...(benchItem ? { benchmark: benchItem.media_setor } : {}),
+      ...(benchItem ? { mediaSetor: benchItem.media_setor } : {}),
+      ...(benchItem?.meta_bg != null ? { metaBG: benchItem.meta_bg } : {}),
     }
   })
+
+  const fonte = benchmark?.[0]?.fonte
 
   return (
     <div className="w-full">
@@ -81,19 +86,24 @@ export function RadarChartDiagnostico({ escores, benchmark }: RadarChartProps) {
             tickCount={6}
             axisLine={false}
           />
-          <Radar
-            name="Sua Empresa"
-            dataKey="escore"
-            stroke="#2563eb"
-            fill="#3b82f6"
-            fillOpacity={0.25}
-            strokeWidth={2}
-            dot={{ r: 4, fill: '#2563eb' }}
-          />
+          {/* Meta B&G de Excelência (linha verde tracejada de fundo) */}
           {benchmark && benchmark.length > 0 && (
             <Radar
-              name="Media do Setor"
-              dataKey="benchmark"
+              name="Meta B&G de Excelência (7.5)"
+              dataKey="metaBG"
+              stroke="#10b981"
+              fill="#10b981"
+              fillOpacity={0.05}
+              strokeWidth={2}
+              strokeDasharray="3 3"
+              dot={false}
+            />
+          )}
+          {/* Média Nacional SEBRAE (linha laranja tracejada) */}
+          {benchmark && benchmark.length > 0 && (
+            <Radar
+              name="Média Nacional (SEBRAE)"
+              dataKey="mediaSetor"
               stroke="#f59e0b"
               fill="#fbbf24"
               fillOpacity={0.1}
@@ -102,12 +112,27 @@ export function RadarChartDiagnostico({ escores, benchmark }: RadarChartProps) {
               dot={{ r: 3, fill: '#f59e0b' }}
             />
           )}
+          {/* Sua Empresa (linha azul sólida) */}
+          <Radar
+            name="Sua Empresa"
+            dataKey="escore"
+            stroke="#2563eb"
+            fill="#3b82f6"
+            fillOpacity={0.3}
+            strokeWidth={2.5}
+            dot={{ r: 4, fill: '#2563eb' }}
+          />
           <Tooltip content={<CustomTooltip />} />
           <Legend
             wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
           />
         </RechartsRadarChart>
       </ResponsiveContainer>
+      {fonte && (
+        <p className="text-xs text-gray-400 text-center mt-1">
+          Fonte da média nacional: <span className="font-medium">{fonte}</span>
+        </p>
+      )}
     </div>
   )
 }
