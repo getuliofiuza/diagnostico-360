@@ -147,44 +147,44 @@ function getCorRisco(classificacao: string): string {
 
 const IMPACTOS_AREA: Record<string, { medio: string; longo: string }> = {
   'PLANEJAMENTO E ESTRATEGIA': {
-    medio: 'Decisoes reativas, perda de oportunidades de mercado, retrabalho frequente',
-    longo: 'Estagnacao do crescimento, irrelevancia competitiva, dificuldade de captacao'
+    medio: 'Decisões reativas, perda de oportunidades de mercado, retrabalho frequente',
+    longo: 'Estagnação do crescimento, irrelevância competitiva, dificuldade de captação'
   },
   'RECURSOS HUMANOS': {
     medio: 'Alta rotatividade, baixa produtividade, custos crescentes com recrutamento',
-    longo: 'Perda de know-how, dificuldade de escalar equipe, clima organizacional toxico'
+    longo: 'Perda de know-how, dificuldade de escalar equipe, clima organizacional tóxico'
   },
   'ESTOQUE': {
-    medio: 'Capital empatado, rupturas frequentes, perdas por obsolescencia',
-    longo: 'Margem comprometida, insatisfacao de clientes, perda de market share'
+    medio: 'Capital empatado, rupturas frequentes, perdas por obsolescência',
+    longo: 'Margem comprometida, insatisfação de clientes, perda de market share'
   },
   'FINANCEIRO': {
-    medio: 'Fluxo de caixa apertado, dependencia de credito caro, decisoes sem dados',
-    longo: 'Insolvencia, descapitalizacao, impossibilidade de investir em crescimento'
+    medio: 'Fluxo de caixa apertado, dependência de crédito caro, decisões sem dados',
+    longo: 'Insolvência, descapitalização, impossibilidade de investir em crescimento'
   },
   'TECNOLOGIA DA INFORMACAO': {
     medio: 'Processos manuais, retrabalho, vulnerabilidade a falhas e ataques',
-    longo: 'Defasagem competitiva, incapacidade de escalar, riscos de seguranca graves'
+    longo: 'Defasagem competitiva, incapacidade de escalar, riscos de segurança graves'
   },
   'RELACOES INSTITUCIONAIS': {
-    medio: 'Conflitos legais pontuais, multas, deterioracao de imagem',
-    longo: 'Passivos significativos, perda de licencas, danos reputacionais permanentes'
+    medio: 'Conflitos legais pontuais, multas, deterioração de imagem',
+    longo: 'Passivos significativos, perda de licenças, danos reputacionais permanentes'
   },
   'LOGISTICA': {
-    medio: 'Atrasos de entrega, custos elevados, reclamacoes de clientes',
-    longo: 'Perda de contratos, insatisfacao cronica, perda de competitividade'
+    medio: 'Atrasos de entrega, custos elevados, reclamações de clientes',
+    longo: 'Perda de contratos, insatisfação crônica, perda de competitividade'
   },
   'MARKETING E VENDAS': {
-    medio: 'Queda no volume de vendas, custo de aquisicao alto, baixa conversao',
-    longo: 'Encolhimento de mercado, dependencia de poucos clientes, marca fraca'
+    medio: 'Queda no volume de vendas, custo de aquisição alto, baixa conversão',
+    longo: 'Encolhimento de mercado, dependência de poucos clientes, marca fraca'
   },
   'PROJECOES E TENDENCIAS': {
-    medio: 'Surpresas com mudancas de mercado, decisoes baseadas em intuicao',
-    longo: 'Obsolescencia do modelo de negocio, perda de relevancia, disrupcao por concorrentes'
+    medio: 'Surpresas com mudanças de mercado, decisões baseadas em intuição',
+    longo: 'Obsolescência do modelo de negócio, perda de relevância, disrupção por concorrentes'
   },
   'GESTAO DE PROCESSOS E GOVERNANCA': {
-    medio: 'Retrabalho, dependencia de "herois operacionais", decisoes centralizadas geram gargalos',
-    longo: 'Colapso institucional se lideranca se afasta, exposicao a passivos juridicos, impossibilidade de escalar'
+    medio: 'Retrabalho, dependência de "heróis operacionais", decisões centralizadas geram gargalos',
+    longo: 'Colapso institucional se liderança se afasta, exposição a passivos jurídicos, impossibilidade de escalar'
   }
 }
 
@@ -299,7 +299,7 @@ export default function DiagnosticoResultadoPage() {
       {/* Escores por Area */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Escores por Area</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Escores por Área</h2>
           {data.escores
             .sort((a, b) => b.escore - a.escore)
             .map(e => (
@@ -310,7 +310,7 @@ export default function DiagnosticoResultadoPage() {
         {/* Matriz de Risco */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-2">Matriz de Risco</h2>
-          <p className="text-sm text-gray-500 mb-6">Impactos esperados se o risco nao for mitigado</p>
+          <p className="text-sm text-gray-500 mb-6">Impactos esperados se o risco não for mitigado</p>
           <div className="space-y-3">
             {data.matriz_risco
               .sort((a, b) => a.prioridade - b.prioridade)

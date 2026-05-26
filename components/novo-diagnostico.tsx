@@ -298,7 +298,7 @@ const GARGALOS_RH = [
 const UNIDADES_MEDIDA = ['KG', 'TON', '@', 'Litro', 'Unidade', 'Pacote', 'Saca', 'Caixa', 'Tonel', 'Barril', 'M²', 'M³', 'R$', 'Serviços', 'Outra'];
 
 const DEFICIENCIAS_ESTOQUE = [
-  'Mal gerenciamento produtivo',
+  'Mau gerenciamento produtivo',
   'Baixo conhecimento dos processos',
   'Má qualidade de mão de obra',
   'Maquinários obsoletos',
@@ -311,7 +311,7 @@ const DEFICIENCIAS_ESTOQUE = [
 const MESES_ANO = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
 
 const DEFICIENCIAS_FINANCEIRO = [
-  'Mal gerenciamento financeiro',
+  'Mau gerenciamento financeiro',
   'Envolvimento familiar na gestão',
   'Dificuldade para formar preço',
   'Desconhecimento técnico',
@@ -334,7 +334,7 @@ const BUSCA_CLIENTES = [
 ];
 
 const DEFICIENCIAS_MARKETING = [
-  'Mal gerenciamento comercial',
+  'Mau gerenciamento comercial',
   'Envolvimento familiar na gestão',
   'Dificuldade para identificar clientes',
   'Mercado saturado',

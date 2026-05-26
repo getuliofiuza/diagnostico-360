@@ -38,7 +38,7 @@ export default function DiagnosticosPage() {
     fetch('/api/auth/setup', { method: 'POST' })
       .then(res => res.json())
       .then(data => {
-        if (!data.tenant_id) throw new Error('Nao autenticado')
+        if (!data.tenant_id) throw new Error('Não autenticado')
         return fetch(`/api/diagnosticos?tenant_id=${data.tenant_id}&limit=50`)
       })
       .then(res => {
