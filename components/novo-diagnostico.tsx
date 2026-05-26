@@ -10,6 +10,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Resposta, Setor, Porte, Area } from '@/types/diagnostico';
+import { CurrencyInput } from './currency-input';
 import questoes from '@/data/questoes.json';
 
 // ============================================================================
@@ -807,8 +808,14 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Faturamento Anual (R$)</label>
-                      <Controller name="faturamento_anual" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                        <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="500000.00" />
+                      <Controller name="faturamento_anual" control={control} render={({ field }) => (
+                        <CurrencyInput
+                          value={field.value}
+                          onChange={field.onChange}
+                          prefix="R$"
+                          placeholder="500.000,00"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
                       )} />
                     </div>
                     <div>
@@ -979,8 +986,8 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                           <Controller name="num_colab_operacional" control={control} render={({ field: { value, onChange, ...rest } }) => (
                             <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2" placeholder="Qtd" />
                           )} />
-                          <Controller name="media_salarial_operacional" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
+                          <Controller name="media_salarial_operacional" control={control} render={({ field }) => (
+                            <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="0,00" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" />
                           )} />
                         </div>
                         <div className="border border-gray-200 rounded p-3">
@@ -988,8 +995,8 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                           <Controller name="num_colab_comercial" control={control} render={({ field: { value, onChange, ...rest } }) => (
                             <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2" placeholder="Qtd" />
                           )} />
-                          <Controller name="media_salarial_comercial" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
+                          <Controller name="media_salarial_comercial" control={control} render={({ field }) => (
+                            <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="0,00" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" />
                           )} />
                         </div>
                         <div className="border border-gray-200 rounded p-3">
@@ -997,8 +1004,8 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                           <Controller name="num_colab_administrativo" control={control} render={({ field: { value, onChange, ...rest } }) => (
                             <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2" placeholder="Qtd" />
                           )} />
-                          <Controller name="media_salarial_administrativo" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                            <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" placeholder="R$ médio" />
+                          <Controller name="media_salarial_administrativo" control={control} render={({ field }) => (
+                            <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="0,00" className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm" />
                           )} />
                         </div>
                       </div>
@@ -1024,8 +1031,8 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Folha pagamento (R$/mês)</label>
-                        <Controller name="folha_pagamento_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                        <Controller name="folha_pagamento_mensal" control={control} render={({ field }) => (
+                          <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="0,00" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
                         )} />
                       </div>
                     </div>
@@ -1053,8 +1060,8 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Estoque médio mensal (R$)</label>
-                        <Controller name="estoque_medio_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="50000.00" />
+                        <Controller name="estoque_medio_mensal" control={control} render={({ field }) => (
+                          <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="50.000,00" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
                         )} />
                       </div>
                     </div>
@@ -1108,26 +1115,26 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Faturamento médio mensal (R$)</label>
-                        <Controller name="faturamento_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="100000.00" />
+                        <Controller name="faturamento_mensal" control={control} render={({ field }) => (
+                          <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="100.000,00" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
                         )} />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Custo Fixo Mensal (R$)</label>
-                        <Controller name="custo_fixo_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="30000.00" />
+                        <Controller name="custo_fixo_mensal" control={control} render={({ field }) => (
+                          <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="30.000,00" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
                         )} />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Custo Variável Mensal (R$)</label>
-                        <Controller name="custo_variavel_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="40000.00" />
+                        <Controller name="custo_variavel_mensal" control={control} render={({ field }) => (
+                          <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="40.000,00" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
                         )} />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Despesa Variável Mensal (R$)</label>
-                        <Controller name="despesa_variavel_mensal" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="10000.00" />
+                        <Controller name="despesa_variavel_mensal" control={control} render={({ field }) => (
+                          <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="10.000,00" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
                         )} />
                       </div>
                     </div>
@@ -1313,8 +1320,8 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">CAC — Custo de Aquisição de Cliente (R$)</label>
-                        <Controller name="cac_novos_clientes" control={control} render={({ field: { value, onChange, ...rest } }) => (
-                          <input {...rest} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))} type="number" min="0" step="0.01" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="150" />
+                        <Controller name="cac_novos_clientes" control={control} render={({ field }) => (
+                          <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="150,00" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
                         )} />
                       </div>
                     </div>
