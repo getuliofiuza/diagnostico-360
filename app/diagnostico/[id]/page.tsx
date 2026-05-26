@@ -432,6 +432,9 @@ export default function DiagnosticoResultadoPage() {
         </div>
       )}
 
+      {/* Nota Metodológica */}
+      <NotaMetodologica />
+
       {/* Acoes */}
       <div className="flex gap-4 justify-center">
         <Link href="/diagnosticos" className="bg-white text-gray-700 px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors font-medium">
@@ -442,6 +445,98 @@ export default function DiagnosticoResultadoPage() {
         </Link>
       </div>
     </div>
+  )
+}
+
+// ============================================================================
+// COMPONENTE: Nota Metodológica
+// ============================================================================
+
+function NotaMetodologica() {
+  const fontes = [
+    {
+      titulo: 'SEBRAE — Sondagem de Pequenos Negócios',
+      descricao: 'Pesquisa periódica com MPEs brasileiras, abrangendo gestão financeira, marketing, planejamento e perspectivas de mercado.',
+      url: 'https://datasebrae.com.br/'
+    },
+    {
+      titulo: 'SEBRAE — Sobrevivência das Empresas no Brasil',
+      descricao: 'Estudo sobre fatores que influenciam a longevidade das micro e pequenas empresas, com ênfase em gestão e estruturação.',
+      url: 'https://sebrae.com.br/sites/PortalSebrae/estudos_pesquisas/sobrevivencia-das-empresas-no-brasildestaque5,97186615f0bbf510VgnVCM1000004c00210aRCRD'
+    },
+    {
+      titulo: 'SEBRAE — MPE Indicadores',
+      descricao: 'Indicadores de desempenho, faturamento e estrutura operacional de micro e pequenas empresas.',
+      url: 'https://datasebrae.com.br/mpe/'
+    },
+    {
+      titulo: 'IBGE — Demografia das Empresas (CEMPRE)',
+      descricao: 'Cadastro Central de Empresas — dados sobre nascimento, sobrevivência e estrutura das empresas brasileiras.',
+      url: 'https://www.ibge.gov.br/estatisticas/economicas/comercio/9016-estatisticas-do-cadastro-central-de-empresas.html'
+    },
+    {
+      titulo: 'GEM Brasil — Global Entrepreneurship Monitor',
+      descricao: 'Pesquisa internacional sobre empreendedorismo aplicada ao contexto brasileiro.',
+      url: 'https://datasebraeindicadores.sebrae.com.br/resources/sites/data-sebrae/data-sebrae.html'
+    }
+  ]
+
+  return (
+    <details className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+      <summary className="cursor-pointer font-bold text-gray-900 text-lg flex items-center gap-2">
+        <span>📚</span> Nota Metodológica e Fontes
+      </summary>
+      <div className="mt-4 space-y-4 text-sm text-gray-700">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="font-semibold text-blue-900 mb-2">Sobre o Índice de Maturidade Empresarial</h3>
+          <p>
+            O escore final (0 a 10) é calculado pela média ponderada das 10 áreas avaliadas. Cada área recebe um peso de criticidade baseado em seu impacto na sustentabilidade do negócio (Financeiro e Governança têm os pesos mais altos).
+          </p>
+          <p className="mt-2">
+            As respostas seguem escala Likert de 5 pontos (A=10, B=8, C=6, D=4, E=2). A opção &ldquo;Outras&rdquo; (F) captura contexto qualitativo mas não pontua, evitando distorções.
+          </p>
+        </div>
+
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+          <h3 className="font-semibold text-orange-900 mb-2">Sobre a Média Nacional</h3>
+          <p>
+            Os valores apresentados como &ldquo;Média Nacional&rdquo; são estimativas derivadas de múltiplas pesquisas oficiais sobre maturidade gerencial das MPEs brasileiras, convertidas para a escala 0-10 deste diagnóstico.
+          </p>
+          <p className="mt-2 text-xs text-orange-800">
+            ⚠️ <strong>Importante:</strong> Estes valores servem como referência geral para contextualização. À medida que mais diagnósticos forem realizados na plataforma B&G, a média nacional será atualizada com dados reais e segmentados por setor/porte.
+          </p>
+        </div>
+
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <h3 className="font-semibold text-green-900 mb-2">Sobre a Meta B&G de Excelência (7.5)</h3>
+          <p>
+            O valor 7.5 representa o nível considerado pela metodologia B&G como sólido para uma empresa saudável e sustentável. Trata-se de um referencial aspiracional, não de uma média de mercado.
+          </p>
+          <p className="mt-2">
+            Empresas que atingem ou ultrapassam este patamar em todas as áreas demonstram maturidade operacional consistente, com processos formalizados, governança ativa e capacidade de escalar.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-3">Fontes consultadas</h3>
+          <ul className="space-y-3">
+            {fontes.map((f, i) => (
+              <li key={i} className="border-l-4 border-gray-200 pl-4 py-1">
+                <a href={f.url} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-700 hover:underline">
+                  {f.titulo} ↗
+                </a>
+                <p className="text-xs text-gray-600 mt-1">{f.descricao}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="text-xs text-gray-500 italic border-t pt-3">
+          Diagnóstico Empresarial 360° — desenvolvido com metodologia B&G / Neurocorp 360.
+          Última atualização da Nota Metodológica: maio de 2026.
+        </div>
+      </div>
+    </details>
   )
 }
 
