@@ -417,8 +417,27 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
   const custoFixoMensal = watch('custo_fixo_mensal');
   const custoVariavelMensal = watch('custo_variavel_mensal');
   const despesaVariavelMensal = watch('despesa_variavel_mensal');
-  const folhaPagamentoMensal = watch('folha_pagamento_mensal');
   const vendasMes = watch('vendas_servicos_mes');
+
+  // Colaboradores e salários para calcular a folha
+  const numColabOp = watch('num_colab_operacional');
+  const numColabCom = watch('num_colab_comercial');
+  const numColabAdm = watch('num_colab_administrativo');
+  const medSalOp = watch('media_salarial_operacional');
+  const medSalCom = watch('media_salarial_comercial');
+  const medSalAdm = watch('media_salarial_administrativo');
+
+  // FOLHA DE PAGAMENTO CALCULADA = Σ (qtd × salário médio) de cada categoria
+  const folhaCalculada = (() => {
+    const op = (Number(numColabOp || 0)) * (Number(medSalOp || 0));
+    const com = (Number(numColabCom || 0)) * (Number(medSalCom || 0));
+    const adm = (Number(numColabAdm || 0)) * (Number(medSalAdm || 0));
+    const total = op + com + adm;
+    return total > 0 ? total : null;
+  })();
+
+  // Usa folha calculada (se preenchida) ou o valor manual já gravado
+  const folhaPagamentoMensal = folhaCalculada;
 
   // Margem de contribuição (R$ e %)
   const margemContribuicaoRS = (faturamentoMensal && (custoVariavelMensal != null || despesaVariavelMensal != null))
@@ -439,6 +458,28 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
     ? (Number(folhaPagamentoMensal) / Number(faturamentoMensal)) * 100
     : null;
 
+  // FAIXAS DE SAÚDE DA FOLHA POR SETOR (com 5pp de tolerância de alerta)
+  // - até `saudavel`: verde
+  // - entre `saudavel` e `saudavel + 5pp`: amarelo (atenção)
+  // - acima: vermelho (alerta crítico)
+  const FAIXAS_FOLHA: Record<string, { saudavel: number; nome: string }> = {
+    'Comércio': { saudavel: 15, nome: '10% a 15%' },
+    'Serviços': { saudavel: 30, nome: '20% a 30%' },
+    'Indústria': { saudavel: 20, nome: '15% a 20%' },
+    'Produtor Rural': { saudavel: 20, nome: '15% a 20%' },
+  };
+  const faixaFolha = FAIXAS_FOLHA[setorAtual] || FAIXAS_FOLHA['Comércio'];
+  const limiteAlerta = faixaFolha.saudavel + 5; // tolerância de 5pp
+
+  const folhaStatus: 'saudavel' | 'atencao' | 'critico' | null =
+    percentualFolha == null
+      ? null
+      : percentualFolha <= faixaFolha.saudavel
+        ? 'saudavel'
+        : percentualFolha <= limiteAlerta
+          ? 'atencao'
+          : 'critico';
+
   // Ticket médio: Faturamento / Nº vendas
   const ticketMedioCalc = (faturamentoMensal && vendasMes && Number(vendasMes) > 0)
     ? Number(faturamentoMensal) / Number(vendasMes)
@@ -449,7 +490,8 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
     if (margemContribuicaoPct != null) setValue('margem_contribuicao_pct', Math.round(margemContribuicaoPct * 10) / 10);
     if (pontoEquilibrio != null) setValue('ponto_equilibrio', Math.round(pontoEquilibrio * 100) / 100);
     if (ticketMedioCalc != null) setValue('ticket_medio', Math.round(ticketMedioCalc * 100) / 100);
-  }, [margemContribuicaoPct, pontoEquilibrio, ticketMedioCalc, setValue]);
+    if (folhaCalculada != null) setValue('folha_pagamento_mensal', Math.round(folhaCalculada * 100) / 100);
+  }, [margemContribuicaoPct, pontoEquilibrio, ticketMedioCalc, folhaCalculada, setValue]);
 
   // ========================================================================
   // HANDLERS
@@ -1030,10 +1072,17 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                         )} />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Folha pagamento (R$/mês)</label>
-                        <Controller name="folha_pagamento_mensal" control={control} render={({ field }) => (
-                          <CurrencyInput value={field.value} onChange={field.onChange} prefix="R$" placeholder="0,00" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
-                        )} />
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Folha pagamento (R$/mês) <span className="text-xs text-blue-600 font-normal">— calculada automaticamente</span>
+                        </label>
+                        <div className="w-full px-4 py-2 border border-blue-200 bg-blue-50 rounded-lg text-blue-900 font-bold">
+                          {folhaCalculada != null
+                            ? folhaCalculada.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                            : 'R$ 0,00'}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Σ (quantidade × salário médio) de cada categoria. Inclua salários, pró-labore, encargos e benefícios na &ldquo;média salarial&rdquo;.
+                        </p>
                       </div>
                     </div>
                     <div>
@@ -1190,12 +1239,36 @@ export function NovoDiagnostico({ tenant_id, onSuccess }: NovoDiagnosticoProps) 
                           </div>
                           <div className="text-[10px] text-gray-500">Custo Fixo ÷ MC%</div>
                         </div>
-                        <div className="bg-white rounded p-3 border border-green-200">
+                        <div className={`bg-white rounded p-3 border ${
+                          folhaStatus === 'critico' ? 'border-red-300' :
+                          folhaStatus === 'atencao' ? 'border-orange-300' :
+                          'border-green-200'
+                        }`}>
                           <div className="text-xs text-gray-600 mb-1">% Folha sobre Receita</div>
-                          <div className={`text-lg font-bold ${percentualFolha != null && percentualFolha > 30 ? 'text-red-700' : percentualFolha != null && percentualFolha > 20 ? 'text-orange-700' : 'text-green-700'}`}>
+                          <div className={`text-lg font-bold ${
+                            folhaStatus === 'critico' ? 'text-red-700' :
+                            folhaStatus === 'atencao' ? 'text-orange-700' :
+                            folhaStatus === 'saudavel' ? 'text-green-700' :
+                            'text-gray-400'
+                          }`}>
                             {percentualFolha != null ? `${percentualFolha.toFixed(1)}%` : '—'}
+                            {folhaStatus === 'critico' && <span className="ml-1 text-xs">🔴</span>}
+                            {folhaStatus === 'atencao' && <span className="ml-1 text-xs">🟡</span>}
+                            {folhaStatus === 'saudavel' && <span className="ml-1 text-xs">🟢</span>}
                           </div>
-                          <div className="text-[10px] text-gray-500">Saudável: até 20%</div>
+                          <div className="text-[10px] text-gray-500">
+                            {setorAtual}: saudável até {faixaFolha.nome}
+                          </div>
+                          {folhaStatus === 'critico' && (
+                            <div className="text-[10px] text-red-600 font-medium mt-1">
+                              ⚠️ Acima de {limiteAlerta}% — risco crítico
+                            </div>
+                          )}
+                          {folhaStatus === 'atencao' && (
+                            <div className="text-[10px] text-orange-600 font-medium mt-1">
+                              ⚠️ Acima de {faixaFolha.saudavel}% — atenção
+                            </div>
+                          )}
                         </div>
                       </div>
                       <p className="text-xs text-green-800 mt-3 italic">
