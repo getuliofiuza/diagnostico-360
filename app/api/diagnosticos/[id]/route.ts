@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '@/lib/supabase/server';
 import { DiagnosticoCompleto } from '@/types/diagnostico';
 
 export async function GET(
@@ -28,6 +29,39 @@ export async function GET(
       return NextResponse.json(
         { success: false, message: 'Diagnóstico não encontrado' },
         { status: 404 }
+      );
+    }
+
+    // 1.5 — Controle de acesso: dono do tenant OU admin
+    const supabaseAuth = createServerClient();
+    const { data: { user } } = await supabaseAuth.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: 'Não autenticado' },
+        { status: 401 }
+      );
+    }
+
+    const { data: tenant } = await supabase
+      .from('tenants')
+      .select('owner_id, is_admin')
+      .eq('id', diagnostico.tenant_id)
+      .single();
+
+    // Verifica se o user é dono do tenant OU é admin
+    const { data: userTenant } = await supabase
+      .from('tenants')
+      .select('is_admin')
+      .eq('owner_id', user.id)
+      .single();
+
+    const ehAdmin = !!userTenant?.is_admin;
+    const ehDono = tenant?.owner_id === user.id;
+
+    if (!ehDono && !ehAdmin) {
+      return NextResponse.json(
+        { success: false, message: 'Acesso negado a este diagnóstico' },
+        { status: 403 }
       );
     }
 

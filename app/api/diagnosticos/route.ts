@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,9 +14,28 @@ export async function GET(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
+    // Verificar autenticação
+    const supabaseAuth = createServerClient();
+    const { data: { user } } = await supabaseAuth.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
     // Recuperar query params
     const searchParams = request.nextUrl.searchParams;
     const tenant_id = searchParams.get('tenant_id');
+
+    // Segurança: garantir que o user só veja diagnósticos do PRÓPRIO tenant
+    // Admin pode passar qualquer tenant_id; usuário comum só pode listar o próprio
+    const { data: userTenant } = await supabase
+      .from('tenants')
+      .select('id, is_admin')
+      .eq('owner_id', user.id)
+      .single();
+
+    if (!userTenant?.is_admin && tenant_id && tenant_id !== userTenant?.id) {
+      return NextResponse.json({ error: 'Acesso negado a este tenant' }, { status: 403 });
+    }
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const busca = searchParams.get('busca');

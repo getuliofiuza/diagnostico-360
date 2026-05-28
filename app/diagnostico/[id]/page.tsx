@@ -263,9 +263,20 @@ export default function DiagnosticoResultadoPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8 print:max-w-full print:px-0 print:py-0">
+      {/* Barra de Ações (oculta na impressão) */}
+      <div className="flex justify-end gap-2 mb-4 print:hidden">
+        <button
+          onClick={() => window.print()}
+          className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium flex items-center gap-2"
+        >
+          🖨️ Imprimir / Salvar PDF
+        </button>
+        <EnviarEmailButton diagId={data.id} respondenteEmail={data.respondente_email} />
+      </div>
+
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
+      <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6 print:border-0 print:p-4 print:mb-3">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{data.empresa_nome}</h1>
@@ -439,7 +450,7 @@ export default function DiagnosticoResultadoPage() {
       <NotaMetodologica />
 
       {/* Acoes */}
-      <div className="flex gap-4 justify-center">
+      <div className="flex gap-4 justify-center print:hidden">
         <Link href="/diagnosticos" className="bg-white text-gray-700 px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors font-medium">
           Ver todos os diagnósticos
         </Link>
@@ -447,6 +458,91 @@ export default function DiagnosticoResultadoPage() {
           Novo Diagnóstico
         </Link>
       </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// Botão Enviar por Email
+// ============================================================================
+function EnviarEmailButton({ diagId, respondenteEmail }: { diagId: string; respondenteEmail?: string }) {
+  const [enviando, setEnviando] = useState(false)
+  const [enviado, setEnviado] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+  const [emailDestino, setEmailDestino] = useState(respondenteEmail || '')
+  const [mostrarInput, setMostrarInput] = useState(false)
+
+  const handleEnviar = async () => {
+    if (!emailDestino || !emailDestino.includes('@')) {
+      setErro('Informe um email válido')
+      return
+    }
+    setEnviando(true)
+    setErro(null)
+    try {
+      const res = await fetch(`/api/diagnosticos/${diagId}/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destinatario: emailDestino }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao enviar')
+      setEnviado(true)
+      setMostrarInput(false)
+      setTimeout(() => setEnviado(false), 4000)
+    } catch (e: any) {
+      setErro(e.message)
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  if (enviado) {
+    return (
+      <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+        ✅ Email enviado para {emailDestino}
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative">
+      {!mostrarInput ? (
+        <button
+          onClick={() => setMostrarInput(true)}
+          className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 text-sm font-medium flex items-center gap-2"
+        >
+          📧 Enviar por Email
+        </button>
+      ) : (
+        <div className="flex items-center gap-2">
+          <input
+            type="email"
+            value={emailDestino}
+            onChange={e => setEmailDestino(e.target.value)}
+            placeholder="email@destino.com"
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 w-64"
+          />
+          <button
+            onClick={handleEnviar}
+            disabled={enviando}
+            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 text-sm font-medium disabled:opacity-50"
+          >
+            {enviando ? 'Enviando...' : 'Enviar'}
+          </button>
+          <button
+            onClick={() => { setMostrarInput(false); setErro(null); }}
+            className="text-gray-500 hover:text-gray-700 text-sm"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+      {erro && (
+        <div className="absolute right-0 mt-2 bg-red-50 border border-red-200 text-red-700 px-3 py-1.5 rounded text-xs">
+          {erro}
+        </div>
+      )}
     </div>
   )
 }

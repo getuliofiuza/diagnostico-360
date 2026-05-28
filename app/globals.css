@@ -5,3 +5,74 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
+/* ============================================================================
+   ESTILOS DE IMPRESSÃO (Botão Imprimir / Salvar PDF)
+   ============================================================================ */
+@media print {
+  /* Esconder navbar e botões */
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Reset de espaçamentos */
+  body {
+    background: white !important;
+    font-size: 11pt;
+    color: #1f2937;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Cards: tira sombras e bordas pesadas */
+  .bg-white {
+    background: white !important;
+    box-shadow: none !important;
+  }
+
+  .border,
+  .border-gray-200,
+  .rounded-2xl,
+  .rounded-xl,
+  .rounded-lg {
+    border-color: #d1d5db !important;
+    page-break-inside: avoid;
+  }
+
+  /* Cores preservadas */
+  .bg-gradient-to-br,
+  .bg-blue-50,
+  .bg-amber-50,
+  .bg-red-50,
+  .bg-green-50,
+  .bg-orange-50 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Quebra de página em seções grandes */
+  h2 {
+    page-break-after: avoid;
+  }
+
+  details {
+    open: true;
+  }
+
+  details > summary {
+    display: none !important;
+  }
+
+  details > div {
+    display: block !important;
+  }
+
+  /* Esconder área de outros diagnósticos no fim */
+  footer {
+    display: none !important;
+  }
+}

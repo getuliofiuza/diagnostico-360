@@ -10,16 +10,25 @@ export function Navbar() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user)
       setLoading(false)
+      if (data.user) {
+        // Verifica se é admin
+        fetch('/api/auth/setup', { method: 'POST' })
+          .then(r => r.json())
+          .then(d => setIsAdmin(!!d.is_admin))
+          .catch(() => setIsAdmin(false))
+      }
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      if (!session?.user) setIsAdmin(false)
     })
 
     return () => subscription.unsubscribe()
@@ -49,6 +58,11 @@ export function Navbar() {
                 <Link href="/diagnosticos" className="text-gray-600 hover:text-primary-700 font-medium transition-colors">
                   Diagnósticos
                 </Link>
+                {isAdmin && (
+                  <Link href="/admin/diagnosticos" className="text-amber-700 hover:text-amber-800 font-medium transition-colors flex items-center gap-1">
+                    <span>👑</span> Admin
+                  </Link>
+                )}
                 <Link href="/diagnostico/novo" className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium">
                   Novo
                 </Link>

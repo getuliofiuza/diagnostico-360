@@ -24,7 +24,7 @@ export async function POST() {
 
     const { data: existing, error: queryError } = await supabase
       .from('tenants')
-      .select('id')
+      .select('id, is_admin')
       .eq('owner_id', user.id)
       .order('criado_em', { ascending: true })
       .limit(1)
@@ -38,7 +38,11 @@ export async function POST() {
     }
 
     if (existing && existing.length > 0) {
-      return NextResponse.json({ tenant_id: existing[0].id })
+      return NextResponse.json({
+        tenant_id: existing[0].id,
+        is_admin: !!existing[0].is_admin,
+        email: user.email
+      })
     }
 
     const { data: tenant, error: insertError } = await supabase
