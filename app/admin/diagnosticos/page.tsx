@@ -107,9 +107,14 @@ export default function AdminDiagnosticosPage() {
           </h1>
           <p className="text-gray-500 mt-1">Todos os diagnósticos do sistema</p>
         </div>
-        <Link href="/diagnosticos" className="text-sm text-primary-600 hover:underline">
-          ← Meus diagnósticos
-        </Link>
+        <div className="flex gap-3">
+          <Link href="/admin/usuarios" className="text-sm text-amber-700 hover:underline">
+            👥 Gerenciar Usuários
+          </Link>
+          <Link href="/diagnosticos" className="text-sm text-gray-600 hover:underline">
+            Meus diagnósticos
+          </Link>
+        </div>
       </div>
 
       {/* Estatísticas */}

@@ -59,9 +59,22 @@ export function Navbar() {
                   Diagnósticos
                 </Link>
                 {isAdmin && (
-                  <Link href="/admin/diagnosticos" className="text-amber-700 hover:text-amber-800 font-medium transition-colors flex items-center gap-1">
-                    <span>👑</span> Admin
-                  </Link>
+                  <div className="relative group">
+                    <button className="text-amber-700 hover:text-amber-800 font-medium transition-colors flex items-center gap-1">
+                      <span>👑</span> Admin
+                      <svg className="w-3 h-3 ml-0.5" fill="currentColor" viewBox="0 0 12 12"><path d="M3 4l3 3 3-3"/></svg>
+                    </button>
+                    <div className="absolute right-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                      <div className="bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[200px]">
+                        <Link href="/admin/diagnosticos" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700">
+                          📊 Todos os Diagnósticos
+                        </Link>
+                        <Link href="/admin/usuarios" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700">
+                          👥 Gerenciar Usuários
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
                 )}
                 <Link href="/diagnostico/novo" className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium">
                   Novo
