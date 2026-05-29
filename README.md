@@ -1,368 +1,209 @@
-# 🎯 DIAGNÓSTICO GERENCIAL 360°
-## Ferramenta Premium de Diagnóstico Empresarial
+# 🎯 Diagnóstico Empresarial 360°
 
-**Status**: 🚧 Em desenvolvimento (Fase 1 - 30% completo)  
-**Versão**: 1.0.0-alpha  
-**Stack**: Next.js 14 + TypeScript + Supabase + React  
+Ferramenta SaaS de **diagnóstico de maturidade empresarial** que avalia empresas em **10 áreas estratégicas**, gerando escores, matriz de risco, plano de ação (PDE) e relatório completo. Desenvolvido para a metodologia **B&G / Neurocorp 360**.
+
+**🔗 Em produção:** https://diagnostico-360-taupe.vercel.app
+
+**Status:** ✅ Em produção · **Stack:** Next.js 14 + TypeScript + Supabase
 
 ---
 
-## 🚀 INÍCIO RÁPIDO (5 min)
+## ✨ Funcionalidades
+
+### Diagnóstico
+- **100 questões** em **10 áreas** (10 por área), filtradas por setor
+- Formulário em 3 etapas: **Configuração → Questionário → Revisão**
+- Questionário em **modo Hub** — cada área é um card independente
+- Opção **"Outras"** com texto livre por questão (contexto qualitativo)
+
+### Dados capturados (base Anexo XXVII)
+- Localização, atividade econômica (CNAE por setor)
+- Perfil do gestor (tempo, idade, origem, escolaridade)
+- Qualitativos: jornada, diferencial competitivo, dores
+- **Financeiro com cálculo automático:**
+  - Margem de contribuição, ponto de equilíbrio, ticket médio
+  - Folha de pagamento (Σ qtd × salário por categoria)
+  - % folha sobre receita com **faixas saudáveis por setor**
+  - Endividamento detalhado (banco / fornecedor / fisco / SEFAZ…)
+
+### Relatório
+- **Radar com 3 referências:** Sua Empresa · Média Nacional (SEBRAE) · Meta B&G (7.5)
+- Escores por área + matriz de risco com impactos médio/longo prazo
+- **PDE** (Plano de Desenvolvimento Empresarial) por fases
+- Análise interpretativa automática + Nota Metodológica com fontes
+- 🖨️ Imprimir / Salvar PDF · 📧 Enviar por Email
+
+### Acesso e Administração
+- Cadastro/login via Supabase Auth (multi-tenant)
+- **Isolamento:** cada usuário vê apenas os próprios diagnósticos
+- **Painel Admin** (`/admin/diagnosticos`): todos os diagnósticos, busca, filtro, export CSV, estatísticas
+- **Gerenciar Usuários** (`/admin/usuarios`): promover/remover admins em 1 clique
+- Segurança em 3 camadas (UI · página · API server-side)
+
+---
+
+## 🛠️ Stack
+
+| Camada | Tecnologia |
+|--------|-----------|
+| Frontend | Next.js 14 (App Router), React 18, TypeScript |
+| Estilo | Tailwind CSS |
+| Banco/Auth | Supabase (PostgreSQL + Auth) |
+| Gráficos | Recharts |
+| Formulários | React Hook Form + Zod |
+| Email | Resend |
+| Deploy | Vercel (CI/CD via GitHub) |
+
+---
+
+## 🚀 Início Rápido
 
 ```bash
-# 1. Clone
-git clone <seu-repo>
-cd diagnostico-360
-
-# 2. Instale dependências
+# 1. Instalar dependências
 npm install
 
-# 3. Configure variáveis
+# 2. Configurar variáveis de ambiente
 cp .env.example .env.local
-# Preencha SUPABASE_URL e SUPABASE_KEY
+# Preencha as chaves (ver seção abaixo)
 
-# 4. Setup banco
-npm run db:migrate
-npm run db:seed
-
-# 5. Rode
+# 3. Rodar em desenvolvimento
 npm run dev
+# Acesse http://localhost:3000
 
-# ✅ Acesse: http://localhost:3000
+# 4. Build de produção
+npm run build && npm start
 ```
 
 ---
 
-## 📚 DOCUMENTAÇÃO
-
-| Documento | Para quem | Tempo |
-|-----------|-----------|-------|
-| **SETUP.md** | Developers | 10 min |
-| **DESENVOLVIMENTO.md** | Tech leads | 15 min |
-| **/docs/ESPECIFICAÇÃO.md** | Arquitetos | 45 min |
-| **/docs/GUIA_IMPLEMENTAÇÃO.md** | Devs sprint-by-sprint | 1h+ |
-
----
-
-## 🏗️ ARQUITETURA
-
-### Backend
-```
-Supabase PostgreSQL
-    ↓
-[API REST]
-  ├─ POST /api/diagnosticos/criar
-  ├─ GET  /api/diagnosticos/[id]
-  └─ GET  /api/diagnosticos (list)
-    ↓
-[Lógica de negócio]
-  ├─ Cálculo de escores (0-10)
-  ├─ Matriz de risco
-  ├─ PDI automático
-  └─ Geração de narrativa
-```
-
-### Frontend
-```
-Next.js App Router
-    ↓
-React Components
-  ├─ <NovoDiagnostico /> — 3 steps form
-  ├─ <VisualizarDiagnostico /> — resultados
-  ├─ <RadarChart /> — 9 áreas
-  ├─ <HeatmapTable /> — matriz risco
-  └─ <PDITimeline /> — plano de ação
-```
-
----
-
-## 📊 FUNCIONALIDADES
-
-### MVP (Fase 1-2)
-- ✅ Criar diagnóstico (formulário 3 steps)
-- ✅ Calcular escores (9 áreas, 0-10)
-- ✅ Matriz de risco (crítico/alto/médio/baixo)
-- ✅ PDI automático (plano de ação)
-- ⏳ Visualizar resultados (gráficos radar/heatmap)
-- ⏳ PDF relatório
-- ⏳ Autenticação (Supabase)
-
-### Fase 3+
-- Dashboard histórico (trending)
-- Benchmark vs. setor
-- White-label (cliente coloca marca)
-- Integração com Neurocorp 360
-- API pública
-
----
-
-## 📂 ESTRUTURA
-
-```
-diagnostico-360/
-├── app/                          # Next.js 14 (App Router)
-│   ├── api/diagnosticos/         # Endpoints REST
-│   │   ├── criar/route.ts        # POST criar
-│   │   ├── [id]/route.ts         # GET um
-│   │   └── route.ts              # GET list
-│   ├── layout.tsx                # Root layout
-│   └── page.tsx                  # Home (a fazer)
-│
-├── components/                   # React components
-│   ├── novo-diagnostico.tsx      # ✅ Form 3 steps
-│   ├── visualizar-diagnostico.tsx # ⏳ A fazer
-│   ├── radar-chart.tsx           # ⏳ A fazer
-│   ├── heatmap-table.tsx         # ⏳ A fazer
-│   └── pdi-timeline.tsx          # ⏳ A fazer
-│
-├── lib/                          # Lógica de negócio
-│   └── diagnosticos/
-│       ├── calcular.ts           # ✅ Cálculos
-│       └── ...
-│
-├── types/                        # TypeScript
-│   └── diagnostico.ts            # ✅ Types completos
-│
-├── database/                     # SQL
-│   └── schema.sql                # ✅ Schema completo
-│
-├── data/                         # Dados estáticos
-│   └── questoes.json             # ✅ Questões base (41)
-│
-├── public/                       # Assets estáticos
-├── package.json                  # ✅ Dependências
-├── tsconfig.json                 # ✅ TypeScript config
-├── next.config.js                # ✅ Next config
-├── .env.example                  # ✅ Template env
-├── SETUP.md                      # ✅ Setup guide
-└── DESENVOLVIMENTO.md            # ✅ Progress report
-```
-
----
-
-## 🔧 TECNOLOGIAS
-
-### Core
-- **Next.js 14** — Framework React
-- **TypeScript** — Type safety
-- **React Hook Form** — Formulários
-- **Zod** — Validação
-
-### Backend
-- **Supabase** — PostgreSQL + Auth + Storage
-- **Node.js** — Runtime
-
-### Visualização
-- **Recharts** — Gráficos (radar, heatmap, etc)
-- **Tailwind CSS** — Styling
-
-### Testing (futuro)
-- **Jest** — Unit tests
-- **Testing Library** — Component tests
-- **Cypress** — E2E tests
-
----
-
-## 📋 CHECKLIST DESENVOLVIMENTO
-
-### Fase 1: Fundação ✅ (30%)
-- [x] Schema PostgreSQL
-- [x] Tipos TypeScript
-- [x] Lógica de cálculo
-- [x] API endpoints (3)
-- [x] Componente form
-- [ ] Páginas React
-- [ ] Componentes gráficos
-
-### Fase 2: MVP ⏳
-- [ ] Autenticação Supabase
-- [ ] Visualização resultados
-- [ ] PDF generation
-- [ ] Dashboard listagem
-- [ ] Testes (jest + cypress)
-
-### Fase 3: Premium
-- [ ] Integração Neurocorp
-- [ ] Benchmark real
-- [ ] White-label
-- [ ] API pública
-- [ ] Documentação API
-
----
-
-## 🚀 USAR A API
-
-### Criar Diagnóstico
-
-```bash
-curl -X POST http://localhost:3000/api/diagnosticos/criar \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tenant_id": "550e8400-e29b-41d4-a716-446655440000",
-    "empresa_nome": "XYZ Consultoria",
-    "setor": "Comércio",
-    "porte": "Pequena",
-    "respondente_nome": "João Silva",
-    "respondente_email": "joao@xyz.com.br",
-    "respostas": [
-      {
-        "questao_id": 1,
-        "resposta": "A",
-        "pontos": 10,
-        "tema": "Planejamento e Estratégia"
-      }
-    ]
-  }'
-
-# Response:
-# {
-#   "id": "550e8400-e29b-41d4-a716-446655440001",
-#   "escore_geral": 7.2,
-#   "maturidade": "PLENA",
-#   "status": "criado"
-# }
-```
-
-### Recuperar Diagnóstico
-
-```bash
-curl http://localhost:3000/api/diagnosticos/550e8400-e29b-41d4-a716-446655440001
-
-# Response: Diagnóstico completo com:
-# - escores por área
-# - matriz de risco
-# - PDI (ações)
-# - benchmark
-# - dados para gráficos
-```
-
-### Listar Diagnósticos
-
-```bash
-curl "http://localhost:3000/api/diagnosticos?tenant_id=...&page=1&limit=10"
-```
-
----
-
-## 🔑 VARIÁVEIS DE AMBIENTE
+## 🔑 Variáveis de Ambiente
 
 ```bash
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=seu_anon_key
-SUPABASE_SERVICE_ROLE_KEY=seu_service_role_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_publica
+SUPABASE_SERVICE_ROLE_KEY=sua_chave_secreta   # ⚠️ só backend
+
+# Email (Resend)
+RESEND_API_KEY=re_xxxxx
+RESEND_FROM_EMAIL=Diagnóstico 360 <onboarding@resend.dev>  # opcional
 
 # App
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NODE_ENV=development
-
-# Integração Neurocorp (futuro)
-# NEUROCORP_API_URL=...
-# NEUROCORP_API_KEY=...
+NEXT_PUBLIC_APP_URL=https://seu-dominio.vercel.app
 ```
 
 ---
 
-## 📝 SCRIPTS
+## 📁 Estrutura
+
+```
+app/
+├── page.tsx                      # Home (10 áreas, como funciona)
+├── login/ · cadastro/            # Autenticação
+├── diagnostico/novo/             # Formulário (3 etapas)
+├── diagnostico/[id]/             # Relatório completo
+├── diagnosticos/                 # Lista do usuário
+├── admin/diagnosticos/           # 👑 Painel admin (todos)
+├── admin/usuarios/               # 👑 Gerenciar admins
+└── api/
+    ├── diagnosticos/criar/       # POST cria diagnóstico
+    ├── diagnosticos/[id]/        # GET relatório (+ controle de acesso)
+    ├── diagnosticos/[id]/email/  # POST envia por email
+    ├── admin/diagnosticos/       # GET todos (admin)
+    ├── admin/usuarios/           # GET/PATCH gerenciar admins
+    └── auth/setup/               # cria tenant + verifica is_admin
+
+components/
+├── novo-diagnostico.tsx          # Formulário principal
+├── radar-chart.tsx               # Radar de 3 linhas
+├── currency-input.tsx            # Máscara monetária BR
+└── navbar.tsx                    # Menu com dropdown admin
+
+lib/
+├── diagnosticos/calcular.ts      # Lógica de escore / risco / PDE / benchmark
+└── supabase/                     # Clients (browser / server / middleware)
+
+data/questoes.json                # 100 questões
+database/*.sql                    # Schema + 7 migrations
+```
+
+---
+
+## 🗄️ Banco de Dados (Supabase)
+
+Tabelas principais:
+- `tenants` — usuários/empresas (com `is_admin`, `owner_id`)
+- `diagnosticos_360` — diagnóstico + dados da empresa + escores
+- `diagnosticos_360_respostas` — respostas individuais
+- `diagnosticos_360_matriz_risco` — matriz de risco
+- `diagnosticos_360_pdi` — plano de ação (PDE)
+
+As migrations estão em `database/` e devem ser aplicadas em ordem no SQL Editor do Supabase.
+
+---
+
+## 🔌 API
+
+### Criar diagnóstico
+```bash
+POST /api/diagnosticos/criar
+# body: { tenant_id, empresa_nome, setor, porte, respondente_*, respostas[], ...dados }
+# retorna: { id, escore_geral, maturidade }
+```
+
+### Recuperar relatório
+```bash
+GET /api/diagnosticos/[id]
+# retorna: escores, matriz_risco, pdi, benchmark, narrativa, observacoes
+# (controle de acesso: dono OU admin)
+```
+
+### Enviar por email
+```bash
+POST /api/diagnosticos/[id]/email
+# body: { destinatario }
+```
+
+### Admin
+```bash
+GET   /api/admin/diagnosticos    # lista todos (admin)
+GET   /api/admin/usuarios        # lista usuários
+PATCH /api/admin/usuarios        # promover/remover admin
+```
+
+---
+
+## 🔐 Como tornar alguém admin
+
+**Opção 1 — pela interface (recomendado):**
+`👑 Admin → Gerenciar Usuários → Promover a admin`
+
+**Opção 2 — via SQL:**
+```sql
+UPDATE tenants SET is_admin = true WHERE email = 'pessoa@email.com';
+```
+
+---
+
+## 📜 Scripts
 
 ```bash
-# Desenvolvimento
-npm run dev              # Rodar servidor dev
-npm run build            # Build para prod
-npm start                # Rodar build
-
-# Database
-npm run db:migrate       # Executar migrations
-npm run db:seed          # Popular dados iniciais
-
-# Testes (futuro)
-npm run test             # Jest tests
-npm run test:watch       # Jest watch
-npm run e2e              # Cypress E2E
+npm run dev      # servidor de desenvolvimento
+npm run build    # build de produção
+npm start        # rodar build
 ```
 
 ---
 
-## 🤝 CONTRIBUINDO
+## 🚧 Roadmap
 
-1. Crie uma branch: `git checkout -b feature/sua-feature`
-2. Commit: `git commit -am 'Add feature'`
-3. Push: `git push origin feature/sua-feature`
-4. Pull Request
-
-**Padrão de código**:
-- TypeScript strict
-- ESLint + Prettier
-- Componentes React funcionais
-- Testes para funcionalidades críticas
+- [ ] Domínio próprio (ex: `diagnostico.bg.com.br`)
+- [ ] Benchmark dinâmico (média real da plataforma)
+- [ ] Geração de PDF server-side
+- [ ] Domínio verificado no Resend
+- [ ] Dashboard analítico no admin
+- [ ] Integração com os demais tools do Neurocorp 360
 
 ---
 
-## 🐛 TROUBLESHOOTING
-
-### Erro: "Connection refused"
-```bash
-# Supabase não está rodando
-supabase start
-```
-
-### Erro: "NEXT_PUBLIC_SUPABASE_URL is not set"
-```bash
-# Variáveis de ambiente não definidas
-cp .env.example .env.local
-# Preencha com suas credenciais
-```
-
-### Porta 3000 em uso
-```bash
-npm run dev -- -p 3001
-```
-
-### Banco desincronizado
-```bash
-npm run db:migrate
-npm run db:seed
-```
-
----
-
-## 📞 SUPORTE
-
-- **Docs**: Ver `SETUP.md` e `DESENVOLVIMENTO.md`
-- **Issues**: Abra uma issue no GitHub
-- **Email**: [seu-email@example.com]
-
----
-
-## 📄 LICENÇA
-
-Propriedade privada. Desenvolvimento sob demanda.
-
----
-
-## 🎯 ROADMAP
-
-- **Semana 1-2**: Fundação + API ← **AQUI AGORA**
-- **Semana 3-4**: Frontend + Componentes
-- **Semana 5-6**: Auth + PDF
-- **Semana 7-8**: Integração Neurocorp
-- **Semana 9-10**: Testes + Deploy
-
----
-
-## 📊 STATUS
-
-**Última atualização**: 24/05/2026  
-**Código**: [GitHub]  
-**Deploy**: Staging (via Vercel)  
-
-```
-Foundation Phase: ████████░░░░░░░░ 30%
-Total Project: ███░░░░░░░░░░░░░░░ 15%
-```
-
----
-
-**Pronto para desenvolver? Comece por `SETUP.md`** 🚀
-
-Dúvidas? Abra uma issue ou envie um email.
+**Desenvolvido com metodologia B&G / Neurocorp 360.**
