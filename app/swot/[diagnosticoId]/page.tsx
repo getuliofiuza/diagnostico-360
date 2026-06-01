@@ -348,6 +348,9 @@ export default function SwotPage() {
         })}
       </div>
 
+      {/* Plano de Ação Estratégica 360 — consolida as ações definidas */}
+      <PlanoAcao360 itens={itens} />
+
       {/* Síntese estratégica */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mt-6 print:border print:break-inside-avoid">
         <h2 className="font-semibold text-gray-900 mb-2">Síntese estratégica</h2>
@@ -498,6 +501,64 @@ function EnviarSwotEmailButton({ diagnosticoId }: { diagnosticoId: string }) {
               Cancelar
             </button>
           </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PlanoAcao360({ itens }: { itens: SwotItem[] }) {
+  // Consolida as áreas que têm alguma ação/estratégia definida.
+  const acoes = itens
+    .filter((i) => (i.estrategia || '').trim() || (i.acao_responsavel || '').trim() || (i.acao_prazo || '').trim())
+    .sort((a, b) => a.prioridade - b.prioridade)
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-6 mt-6 print:border print:break-inside-avoid">
+      <h2 className="font-bold text-gray-900 mb-1">Plano de Ação Estratégica 360</h2>
+      <p className="text-xs text-gray-500 mb-4">
+        Consolidação das ações definidas, por ordem de prioridade. {acoes.length === 0 && 'Preencha estratégia, responsável ou prazo nas áreas acima para montar o plano.'}
+      </p>
+
+      {acoes.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="text-left text-xs text-gray-500 border-b border-gray-200">
+                <th className="py-2 pr-3 font-medium w-8">#</th>
+                <th className="py-2 pr-3 font-medium">Área</th>
+                <th className="py-2 pr-3 font-medium">Ação / Estratégia</th>
+                <th className="py-2 pr-3 font-medium whitespace-nowrap">Responsável</th>
+                <th className="py-2 font-medium whitespace-nowrap">Prazo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {acoes.map((a) => (
+                <tr key={a.area} className="border-b border-gray-100 align-top">
+                  <td className="py-3 pr-3">
+                    <span className="inline-flex w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-bold items-center justify-center">
+                      {a.prioridade}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-3">
+                    <div className="font-medium text-gray-900">{a.area}</div>
+                    <span className={`inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded border ${corClassificacao(a.classificacao)}`}>
+                      {a.classificacao || '—'}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-3 text-gray-700 whitespace-pre-line">
+                    {a.estrategia?.trim() || <span className="text-gray-400 italic">—</span>}
+                  </td>
+                  <td className="py-3 pr-3 text-gray-700">
+                    {a.acao_responsavel?.trim() || <span className="text-gray-400 italic">—</span>}
+                  </td>
+                  <td className="py-3 text-gray-700 whitespace-nowrap">
+                    {a.acao_prazo?.trim() || <span className="text-gray-400 italic">—</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
