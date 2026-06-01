@@ -266,6 +266,12 @@ export default function DiagnosticoResultadoPage() {
     <div className="max-w-6xl mx-auto px-4 py-8 print:max-w-full print:px-0 print:py-0">
       {/* Barra de Ações (oculta na impressão) */}
       <div className="flex justify-end gap-2 mb-4 print:hidden">
+        <Link
+          href={`/swot/${data.id}`}
+          className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 text-sm font-medium flex items-center gap-2"
+        >
+          🎯 Aprofundar com SWOT
+        </Link>
         <button
           onClick={() => window.print()}
           className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium flex items-center gap-2"
