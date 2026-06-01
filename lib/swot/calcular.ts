@@ -272,84 +272,297 @@ export interface PerguntasProfundas {
   ameacas: string;
 }
 
-const PERGUNTAS_GENERICO: PerguntasProfundas = {
-  forcas: [
-    'Exemplos de perguntas profundas:',
-    '• O que aqui já funciona tão bem que um concorrente teria dificuldade de copiar?',
-    '• Se a empresa dobrasse de tamanho, qual força desta área sustentaria o crescimento?',
-    '• Que conquista desta área nos últimos 12 meses nos orgulha de verdade?',
-    '• Qual recurso (pessoa, ferramenta, relação) seria mais doloroso de perder?',
-  ].join('\n'),
-  fraquezas: [
-    'Exemplos de perguntas profundas:',
-    '• O que eu evito olhar nesta área porque sei que está mal resolvido?',
-    '• Se um cliente importante fosse embora por causa desta área, qual seria o motivo?',
-    '• O que depende exclusivamente de mim (gestor) e travaria se eu faltasse 30 dias?',
-    '• Qual problema desta área eu "apago incêndio" todo mês sem resolver a causa?',
-  ].join('\n'),
-  oportunidades: [
-    'Exemplos de perguntas profundas:',
-    '• Que mudança no mercado/tecnologia, se eu agir antes dos concorrentes, viraria vantagem?',
-    '• Que recurso que já tenho está subutilizado e poderia gerar resultado nesta área?',
-    '• Qual parceria ou canal eu nunca testei e poderia destravar crescimento?',
-    '• Onde os concorrentes estão falhando e eu poderia ocupar esse espaço?',
-  ].join('\n'),
-  ameacas: [
-    'Exemplos de perguntas profundas:',
-    '• Se este gap continuar 12 meses sem tratamento, qual é o pior cenário concreto?',
-    '• Que movimento de um concorrente, fornecedor ou regulação me deixaria vulnerável aqui?',
-    '• Qual dependência externa (cliente, fornecedor, pessoa-chave) poderia me derrubar?',
-    '• O que eu finjo que "nunca vai acontecer" mas que, se acontecer, dói muito?',
-  ].join('\n'),
-};
+const CABECALHO_PERGUNTAS = 'Exemplos de perguntas profundas:';
 
-// Específicas por área (sobrescrevem as genéricas quando existem)
-const PERGUNTAS_POR_AREA: Partial<Record<Area, Partial<PerguntasProfundas>>> = {
+// Monta o texto de fundo (placeholder) a partir de uma lista de perguntas.
+function bloco(perguntas: string[]): string {
+  return [CABECALHO_PERGUNTAS, ...perguntas.map((p) => `• ${p}`)].join('\n');
+}
+
+// Banco completo: 4 quadrantes × 10 áreas. As perguntas são apenas EXEMPLOS
+// para provocar reflexão — aparecem como texto de fundo e somem ao digitar.
+const BANCO_PERGUNTAS: Record<Area, PerguntasProfundas> = {
   [Area.FINANCEIRO]: {
-    fraquezas: [
-      'Exemplos de perguntas profundas:',
-      '• Eu sei, hoje, exatamente quanto a empresa lucrou no mês passado — ou é "sensação"?',
-      '• Meu preço cobre todos os custos e ainda me remunera, ou estou trabalhando no vermelho sem ver?',
-      '• Quantos dias a empresa sobreviveria se as vendas parassem amanhã?',
-      '• Misturo dinheiro pessoal e da empresa? O quanto isso distorce minhas decisões?',
-    ].join('\n'),
-    ameacas: [
-      'Exemplos de perguntas profundas:',
-      '• Se o banco cortasse meu crédito amanhã, o que aconteceria?',
-      '• Uma queda de 20% nas vendas me levaria à insolvência em quanto tempo?',
-      '• Quanto da minha margem depende de um único cliente ou produto?',
-    ].join('\n'),
+    forcas: bloco([
+      'Tenho clareza real do meu lucro mensal, ou trabalho por "sensação"?',
+      'Qual prática financeira minha já é melhor que a da maioria dos concorrentes?',
+      'Meu controle de caixa me permite tomar decisão com confiança hoje?',
+      'Que reserva ou margem me dá fôlego que outros negócios não têm?',
+    ]),
+    fraquezas: bloco([
+      'Meu preço cobre todos os custos e ainda me remunera, ou estou no vermelho sem ver?',
+      'Quantos dias a empresa sobreviveria se as vendas parassem amanhã?',
+      'Misturo dinheiro pessoal e da empresa? O quanto isso distorce minhas decisões?',
+      'O que eu evito olhar nas finanças porque sei que está mal resolvido?',
+    ]),
+    oportunidades: bloco([
+      'Que linha de crédito ou renegociação eu poderia usar a meu favor agora?',
+      'Se eu precificasse por valor (não por custo), quanto a mais eu ganharia?',
+      'Que automação contábil/financeira me daria dados melhores para decidir?',
+      'Onde estou deixando dinheiro na mesa por falta de controle?',
+    ]),
+    ameacas: bloco([
+      'Se o banco cortasse meu crédito amanhã, o que aconteceria?',
+      'Uma queda de 20% nas vendas me levaria à insolvência em quanto tempo?',
+      'Quanto da minha margem depende de um único cliente ou produto?',
+      'Que custo fora de controle pode corroer meu lucro nos próximos meses?',
+    ]),
+  },
+  [Area.PLANEJAMENTO]: {
+    forcas: bloco([
+      'Tenho visão/missão clara que realmente guia as decisões do dia a dia?',
+      'Que leitura de mercado minha já se provou certeira no passado?',
+      'Existe um plano escrito que a equipe conhece e segue?',
+      'Qual decisão estratégica recente deu certo por ter sido planejada?',
+    ]),
+    fraquezas: bloco([
+      'Minhas decisões são planejadas ou quase sempre reativas ("apagar incêndio")?',
+      'Eu sei dizer onde quero a empresa em 3 anos — com números?',
+      'Tenho indicadores que me dizem se estou indo bem, ou só a sensação?',
+      'Com que frequência reviso a estratégia, ou só toco o operacional?',
+    ]),
+    oportunidades: bloco([
+      'Que tendência de mercado, se eu me planejar agora, vira vantagem?',
+      'Como esta própria análise SWOT pode virar rotina estratégica?',
+      'Que método (BSC, OKR) traria foco ao meu planejamento?',
+      'Onde a falta de planejamento dos concorrentes abre espaço para mim?',
+    ]),
+    ameacas: bloco([
+      'Sem plano, qual oportunidade de mercado eu já perdi por demora?',
+      'Que concorrente mais estruturado pode me ultrapassar enquanto reajo?',
+      'A estagnação por falta de rumo me tornaria irrelevante em quanto tempo?',
+      'Falta de planejamento dificultaria captar recurso/investimento quando eu precisar?',
+    ]),
   },
   [Area.RH]: {
-    fraquezas: [
-      'Exemplos de perguntas profundas:',
-      '• Se meu melhor funcionário pedisse demissão hoje, o que pararia de funcionar?',
-      '• As pessoas sabem o que se espera delas, ou cada um interpreta do seu jeito?',
-      '• Por que as pessoas realmente saem da minha empresa? Eu já perguntei de verdade?',
-      '• Eu desenvolvo minha equipe ou só cobro resultado?',
-    ].join('\n'),
+    forcas: bloco([
+      'Que conhecimento ou talento da minha equipe é difícil de encontrar no mercado?',
+      'Onde minha rotatividade é baixa e o clima é bom — e por quê?',
+      'Que prática de gestão de pessoas já me diferencia?',
+      'Qual líder interno eu confio para tocar a operação sem mim?',
+    ]),
+    fraquezas: bloco([
+      'Se meu melhor funcionário pedisse demissão hoje, o que pararia de funcionar?',
+      'As pessoas sabem o que se espera delas, ou cada um interpreta do seu jeito?',
+      'Por que as pessoas realmente saem da minha empresa? Eu já perguntei de verdade?',
+      'Eu desenvolvo minha equipe ou só cobro resultado?',
+    ]),
+    oportunidades: bloco([
+      'Que parceria (escola técnica, curso) resolveria meu gap de mão de obra?',
+      'Um plano de carreira ou PLR aumentaria retenção e engajamento?',
+      'Que programa de capacitação elevaria a produtividade rapidamente?',
+      'Como me tornar um "imã" de bons profissionais na minha região?',
+    ]),
+    ameacas: bloco([
+      'A perda de uma pessoa-chave levaria embora know-how crítico?',
+      'Um clima organizacional ruim pode contaminar minha melhor equipe?',
+      'O custo de recrutar e treinar sempre de novo está crescendo?',
+      'A falta de gente preparada me impede de aceitar mais clientes/escalar?',
+    ]),
   },
-  [Area.GOVERNANCA]: {
-    fraquezas: [
-      'Exemplos de perguntas profundas:',
-      '• Quantas decisões por dia ainda passam obrigatoriamente por mim?',
-      '• Se eu me afastasse 60 dias, a empresa funcionaria ou pararia?',
-      '• Nossos processos estão na cabeça das pessoas ou documentados?',
-      '• Confio na minha equipe para decidir, ou centralizo por medo de errar?',
-    ].join('\n'),
+  [Area.ESTOQUE]: {
+    forcas: bloco([
+      'Conheço o giro dos meus itens e tenho baixa perda/obsolescência?',
+      'Meu controle de estoque evita ruptura nos produtos que mais vendem?',
+      'Que prática de compras/estoque já me dá vantagem de custo?',
+      'Tenho boa relação com fornecedores que garante reposição confiável?',
+    ]),
+    fraquezas: bloco([
+      'Quanto capital está parado em estoque que não gira?',
+      'Quantas vendas eu perco por falta do item certo na hora certa?',
+      'Sei o que comprar com base em dados, ou no "achismo"?',
+      'Tenho perdas por validade, avaria ou produto encalhado?',
+    ]),
+    oportunidades: bloco([
+      'Uma curva ABC mudaria minha forma de comprar e estocar?',
+      'Integrar estoque com vendas reduziria ruptura e excesso ao mesmo tempo?',
+      'Que negociação com fornecedor (prazo, lote) liberaria meu caixa?',
+      'Um modelo just-in-time caberia em parte do meu portfólio?',
+    ]),
+    ameacas: bloco([
+      'Capital empatado em estoque pode me faltar como capital de giro?',
+      'Um fornecedor falhar comprometeria minhas vendas?',
+      'Mudança de demanda deixaria meu estoque obsoleto rápido?',
+      'Ruptura recorrente está empurrando clientes para o concorrente?',
+    ]),
+  },
+  [Area.TECNOLOGIA]: {
+    forcas: bloco([
+      'Que sistema ou dado bem organizado já me faz ganhar tempo/decisão?',
+      'Minha equipe adota tecnologia com facilidade?',
+      'Onde a tecnologia já me dá vantagem sobre concorrentes locais?',
+      'Que processo eu já automatizei e não imagino mais fazer manual?',
+    ]),
+    fraquezas: bloco([
+      'Quantas horas minha equipe perde em retrabalho e processo manual?',
+      'Meus dados estão seguros, ou um problema técnico me pararia?',
+      'Dependo de planilhas soltas que só uma pessoa entende?',
+      'Estou vulnerável a falhas, perda de dados ou ataques?',
+    ]),
+    oportunidades: bloco([
+      'Que automação eliminaria meu maior gargalo operacional?',
+      'Um BI/painel me daria inteligência que hoje não tenho?',
+      'Migrar para a nuvem reduziria custo e risco?',
+      'Onde a IA poderia me dar produtividade antes dos concorrentes?',
+    ]),
+    ameacas: bloco([
+      'Se eu não evoluir, em quanto tempo fico defasado frente à concorrência?',
+      'Um vazamento ou perda de dados teria qual impacto legal/reputacional?',
+      'A falta de sistemas me impede de crescer sem aumentar custo na mesma proporção?',
+      'Que risco de segurança eu venho ignorando?',
+    ]),
+  },
+  [Area.RELACOES]: {
+    forcas: bloco([
+      'Minha reputação na praça abre portas para mim?',
+      'Que parcerias institucionais já me trazem resultado?',
+      'Estou em dia com obrigações legais e isso me dá tranquilidade?',
+      'Que relação de confiança (sindicato, associação, poder público) eu já tenho?',
+    ]),
+    fraquezas: bloco([
+      'Tenho pendências legais/multas que viraram passivo escondido?',
+      'Minha imagem anda desgastada com algum público importante?',
+      'Falta um programa estruturado de relacionamento institucional?',
+      'Conheço de fato as obrigações regulatórias do meu setor?',
+    ]),
+    oportunidades: bloco([
+      'Que parceria estratégica destravaria crescimento ou credibilidade?',
+      'Ações de responsabilidade social fortaleceriam minha marca?',
+      'Participar de associações setoriais me daria voz e informação?',
+      'Onde uma boa relação institucional viraria vantagem competitiva?',
+    ]),
+    ameacas: bloco([
+      'Um passivo legal pode estourar e comprometer o negócio?',
+      'Posso perder licença/autorização por descuido regulatório?',
+      'Um dano reputacional teria efeito permanente sobre minhas vendas?',
+      'Mudança de legislação pode me pegar despreparado?',
+    ]),
+  },
+  [Area.LOGISTICA]: {
+    forcas: bloco([
+      'Entrego no prazo de forma confiável e isso fideliza clientes?',
+      'Tenho custo logístico sob controle frente aos concorrentes?',
+      'Minha malha de entrega/coleta já é bem definida?',
+      'Que parceiro logístico me dá vantagem de prazo ou preço?',
+    ]),
+    fraquezas: bloco([
+      'Atrasos de entrega estão me custando clientes?',
+      'O frete está corroendo minha margem sem eu perceber?',
+      'Dependo demais de um único transportador?',
+      'Minhas rotas/entregas são planejadas ou improvisadas?',
+    ]),
+    oportunidades: bloco([
+      'Roteirização reduziria custo e prazo ao mesmo tempo?',
+      'Parcerias de frete ou hubs ampliariam meu alcance?',
+      'Integrar logística ao e-commerce abriria novo canal?',
+      'Onde a logística pode virar diferencial e não só custo?',
+    ]),
+    ameacas: bloco([
+      'Atrasos recorrentes empurram clientes para a concorrência?',
+      'Aumento de combustível/frete pode inviabilizar minha margem?',
+      'A falha de um parceiro logístico pararia minhas entregas?',
+      'Gargalos de entrega limitam meu crescimento?',
+    ]),
   },
   [Area.MARKETING]: {
-    fraquezas: [
-      'Exemplos de perguntas profundas:',
-      '• Eu sei quanto custa conquistar um cliente novo e quanto ele me dá de retorno?',
-      '• De onde vêm meus clientes hoje — eu controlo isso ou é sorte/indicação?',
-      '• Se minha maior fonte de clientes secasse, eu teria um plano B?',
-      '• O que faz um cliente me escolher em vez do concorrente? Eu sei mesmo?',
-    ].join('\n'),
+    forcas: bloco([
+      'Tenho base de clientes fiel e indicações constantes (boca a boca)?',
+      'Minha marca é reconhecida e respeitada na minha região?',
+      'Que canal de vendas já me traz resultado previsível?',
+      'O que faz o cliente me escolher e voltar?',
+    ]),
+    fraquezas: bloco([
+      'Eu sei quanto custa conquistar um cliente novo e quanto ele me dá de retorno?',
+      'De onde vêm meus clientes hoje — eu controlo isso ou é sorte/indicação?',
+      'Se minha maior fonte de clientes secasse, eu teria um plano B?',
+      'Minha gestão comercial é estruturada ou desorganizada?',
+    ]),
+    oportunidades: bloco([
+      'Presença digital/CRM aumentaria minhas vendas previsíveis?',
+      'Um programa de indicação multiplicaria meus melhores clientes?',
+      'Que canal novo (online, parcerias) eu nunca explorei?',
+      'Onde os concorrentes comunicam mal e eu poderia me destacar?',
+    ]),
+    ameacas: bloco([
+      'A dependência de poucos clientes me deixa exposto?',
+      'Um concorrente com marketing forte pode encolher meu mercado?',
+      'CAC subindo e conversão caindo: minha venda fica inviável?',
+      'Minha marca é fraca a ponto de eu competir só por preço?',
+    ]),
+  },
+  [Area.TENDENCIAS]: {
+    forcas: bloco([
+      'Estou atento ao mercado e costumo perceber mudanças antes dos outros?',
+      'Já acertei ao antecipar alguma tendência? Como fiz?',
+      'Tenho abertura para experimentar novos modelos/produtos?',
+      'Que visão de futuro minha já se mostrou valiosa?',
+    ]),
+    fraquezas: bloco([
+      'Decido por dados de tendência ou por intuição?',
+      'Mudanças de mercado costumam me pegar de surpresa?',
+      'Tenho plano de sucessão/continuidade para o negócio?',
+      'Reservo tempo para pensar o futuro, ou só toco o presente?',
+    ]),
+    oportunidades: bloco([
+      'Que transformação digital me posicionaria à frente?',
+      'Qual novo modelo de negócio eu poderia testar com baixo risco?',
+      'Que tendência do meu setor ainda é ignorada pelos concorrentes?',
+      'Como antecipar o que meu cliente vai querer amanhã?',
+    ]),
+    ameacas: bloco([
+      'Meu modelo de negócio pode ficar obsoleto em poucos anos?',
+      'Que disrupção (tecnologia, novo entrante) ameaça meu setor?',
+      'Posso perder relevância se continuar fazendo igual?',
+      'A falta de sucessão põe em risco a continuidade da empresa?',
+    ]),
+  },
+  [Area.GOVERNANCA]: {
+    forcas: bloco([
+      'Tenho algum processo-chave documentado e papéis bem definidos?',
+      'Existem reuniões de gestão recorrentes que geram decisão?',
+      'Que rotina de governança já me dá previsibilidade?',
+      'Em que ponto a empresa funciona bem mesmo sem mim?',
+    ]),
+    fraquezas: bloco([
+      'Quantas decisões por dia ainda passam obrigatoriamente por mim?',
+      'Se eu me afastasse 60 dias, a empresa funcionaria ou pararia?',
+      'Nossos processos estão na cabeça das pessoas ou documentados?',
+      'Confio na minha equipe para decidir, ou centralizo por medo de errar?',
+    ]),
+    oportunidades: bloco([
+      'Estruturar comitês (financeiro, compliance) traria mais controle?',
+      'Implementar gestão de riscos evitaria surpresas?',
+      'Padronizar processos-chave reduziria retrabalho e dependência?',
+      'Um plano de sucessão prepararia a empresa para escalar?',
+    ]),
+    ameacas: bloco([
+      'Se eu (liderança) me afastar, a empresa entra em colapso?',
+      'A informalidade me expõe a passivos jurídicos?',
+      'Decisões centralizadas viram gargalo que impede crescer?',
+      'A dependência de "heróis operacionais" é uma bomba-relógio?',
+    ]),
   },
 };
 
 export function obterPerguntasProfundas(area: string): PerguntasProfundas {
-  const especifico = PERGUNTAS_POR_AREA[area as Area] || {};
-  return { ...PERGUNTAS_GENERICO, ...especifico };
+  return (
+    BANCO_PERGUNTAS[area as Area] || {
+      forcas: bloco([
+        'O que esta área já faz bem e poderia ser usado como alavanca?',
+        'Que recurso desta área seria mais doloroso de perder?',
+      ]),
+      fraquezas: bloco([
+        'O que eu evito olhar nesta área porque sei que está mal resolvido?',
+        'O que depende só de mim e travaria se eu faltasse 30 dias?',
+      ]),
+      oportunidades: bloco([
+        'Que fator externo, se eu agir antes, viraria vantagem nesta área?',
+        'Que recurso subutilizado eu poderia aproveitar aqui?',
+      ]),
+      ameacas: bloco([
+        'Se este gap continuar 12 meses, qual é o pior cenário concreto?',
+        'Que dependência externa poderia me derrubar nesta área?',
+      ]),
+    }
+  );
 }
