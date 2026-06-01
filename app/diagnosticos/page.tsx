@@ -90,21 +90,20 @@ export default function DiagnosticosPage() {
       ) : (
         <div className="grid gap-4">
           {diagnosticos.map(d => (
-            <Link
+            <div
               key={d.id}
-              href={`/diagnostico/${d.id}`}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:border-primary-300 hover:shadow-md transition-all block"
+              className="bg-white rounded-xl border border-gray-200 p-6 hover:border-primary-300 hover:shadow-md transition-all"
             >
               <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900">{d.empresa_nome}</h3>
+                <Link href={`/diagnostico/${d.id}`} className="flex-1 group">
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-700">{d.empresa_nome}</h3>
                   <p className="text-sm text-gray-500 mt-1">
                     {d.setor} | {d.porte} | {d.respondente_nome}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
                     {new Date(d.criado_em).toLocaleDateString('pt-BR')}
                   </p>
-                </div>
+                </Link>
                 <div className="text-right ml-4">
                   <div className="text-3xl font-bold text-primary-700">{d.escore_geral}</div>
                   <div className="text-xs text-gray-400 mb-1">de 10</div>
@@ -113,7 +112,22 @@ export default function DiagnosticosPage() {
                   </span>
                 </div>
               </div>
-            </Link>
+              <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                <Link
+                  href={`/diagnostico/${d.id}`}
+                  className="text-sm text-gray-600 hover:text-primary-700 font-medium"
+                >
+                  📊 Ver diagnóstico
+                </Link>
+                <span className="text-gray-300">·</span>
+                <Link
+                  href={`/swot/${d.id}`}
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  🎯 Aprofundar com SWOT
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       )}

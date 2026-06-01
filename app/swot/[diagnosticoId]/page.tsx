@@ -217,7 +217,13 @@ export default function SwotPage() {
         </div>
       </div>
 
+      {/* Matriz SWOT consolidada (2x2) — agrega todas as áreas preenchidas */}
+      <MatrizConsolidada itens={itens} />
+
       {/* Itens SWOT por área (ordenados por criticidade) */}
+      <h2 className="text-lg font-bold text-gray-900 mb-3 print:mt-4">
+        Aprofundamento por área <span className="font-normal text-gray-500 text-sm">(mais crítica → menos crítica)</span>
+      </h2>
       <div className="space-y-4">
         {itens.map((item, idx) => {
           const prompts = obterPrompts(item.area)
@@ -404,6 +410,54 @@ function QuadranteCampo({
         className="w-full border border-white/60 bg-white rounded-lg px-2 py-1.5 text-sm focus:border-gray-400"
         placeholder="Escreva aqui…"
       />
+    </div>
+  )
+}
+
+function MatrizConsolidada({ itens }: { itens: SwotItem[] }) {
+  // Agrega cada quadrante de todas as áreas, prefixando com o nome da área.
+  function agregar(campo: 'forcas' | 'fraquezas' | 'oportunidades' | 'ameacas') {
+    return itens
+      .filter((i) => (i[campo] || '').trim())
+      .map((i) => ({ area: i.area, texto: i[campo].trim() }))
+  }
+
+  const blocos = [
+    { campo: 'forcas' as const, titulo: 'Forças', cor: 'border-green-300 bg-green-50', tag: 'text-green-700' },
+    { campo: 'fraquezas' as const, titulo: 'Fraquezas', cor: 'border-red-300 bg-red-50', tag: 'text-red-700' },
+    { campo: 'oportunidades' as const, titulo: 'Oportunidades', cor: 'border-blue-300 bg-blue-50', tag: 'text-blue-700' },
+    { campo: 'ameacas' as const, titulo: 'Ameaças', cor: 'border-orange-300 bg-orange-50', tag: 'text-orange-700' },
+  ]
+
+  const temAlgo = blocos.some((b) => agregar(b.campo).length > 0)
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 print:border print:break-inside-avoid">
+      <h2 className="font-bold text-gray-900 mb-1">Matriz SWOT consolidada</h2>
+      <p className="text-xs text-gray-500 mb-4">
+        Visão agregada de todas as áreas. {temAlgo ? '' : 'Preencha os quadrantes abaixo para vê-la se formar.'}
+      </p>
+      <div className="grid md:grid-cols-2 gap-3">
+        {blocos.map((b) => {
+          const itensBloco = agregar(b.campo)
+          return (
+            <div key={b.campo} className={`rounded-xl border p-3 ${b.cor} min-h-[80px]`}>
+              <h3 className="text-sm font-semibold text-gray-800 mb-2">{b.titulo}</h3>
+              {itensBloco.length === 0 ? (
+                <p className="text-xs text-gray-400 italic">—</p>
+              ) : (
+                <ul className="space-y-1.5">
+                  {itensBloco.map((it, k) => (
+                    <li key={k} className="text-xs text-gray-700 leading-snug">
+                      <span className={`font-semibold ${b.tag}`}>{it.area}:</span> {it.texto}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
