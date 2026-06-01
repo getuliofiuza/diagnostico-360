@@ -258,3 +258,98 @@ export function obterPrompts(area: string): PromptsArea {
   const especifico = PROMPTS_POR_AREA[area as Area] || {};
   return { ...PROMPTS_GENERICO, ...especifico };
 }
+
+// ----------------------------------------------------------------------------
+// Perguntas profundas (socráticas) por quadrante — exibidas como TEXTO DE FUNDO
+// (placeholder) dentro de cada campo. Provocam reflexão honesta e somem ao
+// começar a digitar. Servem para qualquer área.
+// ----------------------------------------------------------------------------
+
+export interface PerguntasProfundas {
+  forcas: string;
+  fraquezas: string;
+  oportunidades: string;
+  ameacas: string;
+}
+
+const PERGUNTAS_GENERICO: PerguntasProfundas = {
+  forcas: [
+    'Exemplos de perguntas profundas:',
+    '• O que aqui já funciona tão bem que um concorrente teria dificuldade de copiar?',
+    '• Se a empresa dobrasse de tamanho, qual força desta área sustentaria o crescimento?',
+    '• Que conquista desta área nos últimos 12 meses nos orgulha de verdade?',
+    '• Qual recurso (pessoa, ferramenta, relação) seria mais doloroso de perder?',
+  ].join('\n'),
+  fraquezas: [
+    'Exemplos de perguntas profundas:',
+    '• O que eu evito olhar nesta área porque sei que está mal resolvido?',
+    '• Se um cliente importante fosse embora por causa desta área, qual seria o motivo?',
+    '• O que depende exclusivamente de mim (gestor) e travaria se eu faltasse 30 dias?',
+    '• Qual problema desta área eu "apago incêndio" todo mês sem resolver a causa?',
+  ].join('\n'),
+  oportunidades: [
+    'Exemplos de perguntas profundas:',
+    '• Que mudança no mercado/tecnologia, se eu agir antes dos concorrentes, viraria vantagem?',
+    '• Que recurso que já tenho está subutilizado e poderia gerar resultado nesta área?',
+    '• Qual parceria ou canal eu nunca testei e poderia destravar crescimento?',
+    '• Onde os concorrentes estão falhando e eu poderia ocupar esse espaço?',
+  ].join('\n'),
+  ameacas: [
+    'Exemplos de perguntas profundas:',
+    '• Se este gap continuar 12 meses sem tratamento, qual é o pior cenário concreto?',
+    '• Que movimento de um concorrente, fornecedor ou regulação me deixaria vulnerável aqui?',
+    '• Qual dependência externa (cliente, fornecedor, pessoa-chave) poderia me derrubar?',
+    '• O que eu finjo que "nunca vai acontecer" mas que, se acontecer, dói muito?',
+  ].join('\n'),
+};
+
+// Específicas por área (sobrescrevem as genéricas quando existem)
+const PERGUNTAS_POR_AREA: Partial<Record<Area, Partial<PerguntasProfundas>>> = {
+  [Area.FINANCEIRO]: {
+    fraquezas: [
+      'Exemplos de perguntas profundas:',
+      '• Eu sei, hoje, exatamente quanto a empresa lucrou no mês passado — ou é "sensação"?',
+      '• Meu preço cobre todos os custos e ainda me remunera, ou estou trabalhando no vermelho sem ver?',
+      '• Quantos dias a empresa sobreviveria se as vendas parassem amanhã?',
+      '• Misturo dinheiro pessoal e da empresa? O quanto isso distorce minhas decisões?',
+    ].join('\n'),
+    ameacas: [
+      'Exemplos de perguntas profundas:',
+      '• Se o banco cortasse meu crédito amanhã, o que aconteceria?',
+      '• Uma queda de 20% nas vendas me levaria à insolvência em quanto tempo?',
+      '• Quanto da minha margem depende de um único cliente ou produto?',
+    ].join('\n'),
+  },
+  [Area.RH]: {
+    fraquezas: [
+      'Exemplos de perguntas profundas:',
+      '• Se meu melhor funcionário pedisse demissão hoje, o que pararia de funcionar?',
+      '• As pessoas sabem o que se espera delas, ou cada um interpreta do seu jeito?',
+      '• Por que as pessoas realmente saem da minha empresa? Eu já perguntei de verdade?',
+      '• Eu desenvolvo minha equipe ou só cobro resultado?',
+    ].join('\n'),
+  },
+  [Area.GOVERNANCA]: {
+    fraquezas: [
+      'Exemplos de perguntas profundas:',
+      '• Quantas decisões por dia ainda passam obrigatoriamente por mim?',
+      '• Se eu me afastasse 60 dias, a empresa funcionaria ou pararia?',
+      '• Nossos processos estão na cabeça das pessoas ou documentados?',
+      '• Confio na minha equipe para decidir, ou centralizo por medo de errar?',
+    ].join('\n'),
+  },
+  [Area.MARKETING]: {
+    fraquezas: [
+      'Exemplos de perguntas profundas:',
+      '• Eu sei quanto custa conquistar um cliente novo e quanto ele me dá de retorno?',
+      '• De onde vêm meus clientes hoje — eu controlo isso ou é sorte/indicação?',
+      '• Se minha maior fonte de clientes secasse, eu teria um plano B?',
+      '• O que faz um cliente me escolher em vez do concorrente? Eu sei mesmo?',
+    ].join('\n'),
+  },
+};
+
+export function obterPerguntasProfundas(area: string): PerguntasProfundas {
+  const especifico = PERGUNTAS_POR_AREA[area as Area] || {};
+  return { ...PERGUNTAS_GENERICO, ...especifico };
+}
