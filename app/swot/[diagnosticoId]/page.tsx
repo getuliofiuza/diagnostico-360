@@ -9,6 +9,7 @@ import {
   itemPreenchido,
   corClassificacao,
   obterPrompts,
+  obterPerguntasProfundas,
 } from '@/lib/swot/calcular'
 
 interface DiagnosticoResumo {
@@ -228,6 +229,7 @@ export default function SwotPage() {
       <div className="space-y-4">
         {itens.map((item, idx) => {
           const prompts = obterPrompts(item.area)
+          const perguntas = obterPerguntasProfundas(item.area)
           const estaAberto = aberto === idx
           return (
             <div
@@ -271,6 +273,7 @@ export default function SwotPage() {
                     titulo="Forças (Strengths)"
                     cor="border-green-300 bg-green-50"
                     prompt={prompts.forcas}
+                    placeholder={perguntas.forcas}
                     valor={item.forcas}
                     onChange={(v) => atualizarItem(idx, 'forcas', v)}
                   />
@@ -278,6 +281,7 @@ export default function SwotPage() {
                     titulo="Fraquezas (Weaknesses)"
                     cor="border-red-300 bg-red-50"
                     prompt={prompts.fraquezas}
+                    placeholder={perguntas.fraquezas}
                     valor={item.fraquezas}
                     onChange={(v) => atualizarItem(idx, 'fraquezas', v)}
                   />
@@ -285,6 +289,7 @@ export default function SwotPage() {
                     titulo="Oportunidades (Opportunities)"
                     cor="border-blue-300 bg-blue-50"
                     prompt={prompts.oportunidades}
+                    placeholder={perguntas.oportunidades}
                     valor={item.oportunidades}
                     onChange={(v) => atualizarItem(idx, 'oportunidades', v)}
                   />
@@ -292,6 +297,7 @@ export default function SwotPage() {
                     titulo="Ameaças (Threats)"
                     cor="border-orange-300 bg-orange-50"
                     prompt={prompts.ameacas}
+                    placeholder={perguntas.ameacas}
                     valor={item.ameacas}
                     onChange={(v) => atualizarItem(idx, 'ameacas', v)}
                   />
@@ -391,12 +397,14 @@ function QuadranteCampo({
   titulo,
   cor,
   prompt,
+  placeholder,
   valor,
   onChange,
 }: {
   titulo: string
   cor: string
   prompt: string
+  placeholder?: string
   valor: string
   onChange: (v: string) => void
 }) {
@@ -407,9 +415,9 @@ function QuadranteCampo({
       <textarea
         value={valor}
         onChange={(e) => onChange(e.target.value)}
-        rows={3}
-        className="w-full border border-white/60 bg-white rounded-lg px-2 py-1.5 text-sm focus:border-gray-400"
-        placeholder="Escreva aqui…"
+        rows={6}
+        className="w-full border border-white/60 bg-white rounded-lg px-2 py-1.5 text-sm focus:border-gray-400 placeholder:text-gray-400 placeholder:whitespace-pre-line placeholder:text-[11px] placeholder:leading-relaxed"
+        placeholder={placeholder || 'Escreva aqui…'}
       />
     </div>
   )

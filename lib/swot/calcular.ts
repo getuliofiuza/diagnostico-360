@@ -258,3 +258,311 @@ export function obterPrompts(area: string): PromptsArea {
   const especifico = PROMPTS_POR_AREA[area as Area] || {};
   return { ...PROMPTS_GENERICO, ...especifico };
 }
+
+// ----------------------------------------------------------------------------
+// Perguntas profundas (socráticas) por quadrante — exibidas como TEXTO DE FUNDO
+// (placeholder) dentro de cada campo. Provocam reflexão honesta e somem ao
+// começar a digitar. Servem para qualquer área.
+// ----------------------------------------------------------------------------
+
+export interface PerguntasProfundas {
+  forcas: string;
+  fraquezas: string;
+  oportunidades: string;
+  ameacas: string;
+}
+
+const CABECALHO_PERGUNTAS = 'Para refletir (exemplos):';
+
+// Monta o texto de fundo (placeholder) a partir de uma lista de perguntas.
+function bloco(perguntas: string[]): string {
+  return [CABECALHO_PERGUNTAS, ...perguntas.map((p) => `• ${p}`)].join('\n');
+}
+
+// Banco completo: 4 quadrantes × 10 áreas. As perguntas são apenas EXEMPLOS
+// para provocar reflexão — aparecem como texto de fundo e somem ao digitar.
+const BANCO_PERGUNTAS: Record<Area, PerguntasProfundas> = {
+  [Area.FINANCEIRO]: {
+    forcas: bloco([
+      'Você sabe quanto sobrou de dinheiro no mês passado?',
+      'Consegue pagar suas contas sem aperto?',
+      'Tem uma reserva guardada para emergências?',
+      'O que você faz bem com o dinheiro da empresa?',
+    ]),
+    fraquezas: bloco([
+      'Seu preço cobre tudo e ainda sobra para você?',
+      'Se as vendas parassem, por quantos dias a empresa aguenta?',
+      'Você mistura o dinheiro seu com o da empresa?',
+      'Qual conta te tira o sono todo mês?',
+    ]),
+    oportunidades: bloco([
+      'Tem alguma dívida cara que dá para trocar por uma mais barata?',
+      'Se cobrasse um pouco mais, o cliente ainda compraria?',
+      'O que ajudaria você a enxergar melhor as contas?',
+      'Onde você sente que está perdendo dinheiro à toa?',
+    ]),
+    ameacas: bloco([
+      'Se o banco cortasse seu crédito amanhã, o que aconteceria?',
+      'Se vendesse 20% menos, a empresa segura?',
+      'Você depende muito de um cliente só para pagar as contas?',
+      'Que gasto vem crescendo e pode apertar o caixa?',
+    ]),
+  },
+  [Area.PLANEJAMENTO]: {
+    forcas: bloco([
+      'Você sabe onde quer chegar com a empresa?',
+      'Sua equipe conhece esse objetivo?',
+      'Já tomou uma decisão pensada que deu muito certo?',
+      'O que te ajuda a enxergar o caminho do negócio?',
+    ]),
+    fraquezas: bloco([
+      'Você planeja ou vive apagando incêndio?',
+      'Sabe dizer onde quer a empresa daqui a 3 anos?',
+      'Tem como saber se o mês foi bom, ou é só no sentimento?',
+      'Quando foi a última vez que parou para pensar a empresa?',
+    ]),
+    oportunidades: bloco([
+      'Tem alguma mudança no mercado que dá para aproveitar?',
+      'Esta análise pode virar um hábito seu de vez em quando?',
+      'O que ajudaria você a manter o foco no que importa?',
+      'Onde os concorrentes estão perdidos e você poderia avançar?',
+    ]),
+    ameacas: bloco([
+      'Já perdeu alguma chance boa por demorar a decidir?',
+      'Algum concorrente mais organizado pode te passar para trás?',
+      'Ficar parado pode te deixar para trás em quanto tempo?',
+      'Sem rumo, seria difícil conseguir dinheiro quando precisar?',
+    ]),
+  },
+  [Area.RH]: {
+    forcas: bloco([
+      'Você tem alguém na equipe que faz muita falta quando some?',
+      'Onde as pessoas ficam e trabalham felizes? Por quê?',
+      'O que você faz bem para cuidar da sua equipe?',
+      'Em quem você confia para tocar as coisas sem você?',
+    ]),
+    fraquezas: bloco([
+      'Se seu melhor funcionário saísse hoje, o que pararia?',
+      'As pessoas sabem o que esperam delas, ou cada um faz do seu jeito?',
+      'Você já perguntou de verdade por que as pessoas vão embora?',
+      'Você ensina sua equipe ou só cobra resultado?',
+    ]),
+    oportunidades: bloco([
+      'Algum curso ou parceria resolveria a falta de mão de obra?',
+      'Um plano de crescimento faria as pessoas quererem ficar?',
+      'O que faria sua equipe render mais rápido?',
+      'Como fazer bons profissionais quererem trabalhar com você?',
+    ]),
+    ameacas: bloco([
+      'Perder uma pessoa-chave levaria embora um conhecimento importante?',
+      'Um clima ruim pode contagiar o resto da equipe?',
+      'Está cada vez mais caro contratar e treinar gente nova?',
+      'A falta de gente preparada te impede de pegar mais clientes?',
+    ]),
+  },
+  [Area.ESTOQUE]: {
+    forcas: bloco([
+      'Você sabe o que vende mais e o que fica parado?',
+      'Quase nunca falta o produto que o cliente procura?',
+      'O que você faz bem na hora de comprar e estocar?',
+      'Tem fornecedor de confiança que nunca te deixa na mão?',
+    ]),
+    fraquezas: bloco([
+      'Quanto dinheiro está parado em produto que não vende?',
+      'Quantas vendas você perde por faltar o item na hora?',
+      'Você compra com base em números ou no "achismo"?',
+      'Tem produto vencendo, estragando ou encalhado?',
+    ]),
+    oportunidades: bloco([
+      'Separar o que mais vende mudaria sua forma de comprar?',
+      'Ligar o estoque às vendas evitaria falta e sobra?',
+      'Negociar prazo com fornecedor sobraria mais dinheiro no caixa?',
+      'Dá para comprar só quando precisa, sem estocar tanto?',
+    ]),
+    ameacas: bloco([
+      'Dinheiro parado no estoque pode te faltar para pagar contas?',
+      'Se um fornecedor falhar, suas vendas param?',
+      'Uma mudança no gosto do cliente deixaria seu estoque parado?',
+      'Faltar produto está empurrando cliente para o concorrente?',
+    ]),
+  },
+  [Area.TECNOLOGIA]: {
+    forcas: bloco([
+      'Algum sistema ou planilha já te faz ganhar tempo?',
+      'Sua equipe se vira bem com a tecnologia que tem?',
+      'O que você já faz no automático e não voltaria a fazer na mão?',
+      'A tecnologia já te ajuda a sair na frente por aqui?',
+    ]),
+    fraquezas: bloco([
+      'Quanto tempo sua equipe perde refazendo trabalho na mão?',
+      'Seus dados estão seguros, ou um problema te pararia?',
+      'Você depende de uma planilha que só uma pessoa entende?',
+      'Já pensou no que acontece se perder seus arquivos?',
+    ]),
+    oportunidades: bloco([
+      'O que dá para automatizar e tirar esse peso das costas?',
+      'Um painel simples te mostraria coisas que hoje você não vê?',
+      'Guardar tudo na nuvem traria mais segurança e menos custo?',
+      'Onde a tecnologia te colocaria na frente dos concorrentes?',
+    ]),
+    ameacas: bloco([
+      'Sem se atualizar, em quanto tempo você fica para trás?',
+      'Perder dados de clientes traria que tipo de problema?',
+      'A falta de sistema te impede de crescer sem gastar muito mais?',
+      'Que risco de segurança você vem deixando de lado?',
+    ]),
+  },
+  [Area.RELACOES]: {
+    forcas: bloco([
+      'Seu nome na praça abre portas para você?',
+      'Tem alguma parceria que já te traz resultado?',
+      'Está com tudo certo na parte legal e isso te deixa tranquilo?',
+      'Que boas relações você já construiu (clientes, parceiros)?',
+    ]),
+    fraquezas: bloco([
+      'Tem alguma pendência legal ou multa te incomodando?',
+      'Sua imagem anda arranhada com algum público importante?',
+      'Você cuida do relacionamento com parceiros ou deixa solto?',
+      'Você conhece bem as regras do seu ramo?',
+    ]),
+    oportunidades: bloco([
+      'Que parceria te abriria portas ou daria mais credibilidade?',
+      'Uma ação social fortaleceria seu nome na região?',
+      'Entrar numa associação do seu ramo te daria voz e informação?',
+      'Onde uma boa relação viraria vantagem para você?',
+    ]),
+    ameacas: bloco([
+      'Alguma pendência legal pode estourar e atrapalhar o negócio?',
+      'Você pode perder uma licença por descuido com as regras?',
+      'Um problema de imagem grudaria no seu nome por muito tempo?',
+      'Uma mudança na lei pode te pegar de surpresa?',
+    ]),
+  },
+  [Area.LOGISTICA]: {
+    forcas: bloco([
+      'Você entrega no prazo e o cliente confia nisso?',
+      'Seu custo de entrega está sob controle?',
+      'Suas entregas seguem uma rotina organizada?',
+      'Tem parceiro de entrega que te dá vantagem de prazo ou preço?',
+    ]),
+    fraquezas: bloco([
+      'Atrasos na entrega estão te custando clientes?',
+      'O frete está comendo seu lucro sem você perceber?',
+      'Você depende de um entregador só?',
+      'Suas entregas são planejadas ou improvisadas na hora?',
+    ]),
+    oportunidades: bloco([
+      'Organizar melhor as rotas baixaria custo e prazo?',
+      'Uma parceria de frete ampliaria seu alcance?',
+      'Entregar para vendas online abriria um novo caminho?',
+      'A entrega poderia virar um diferencial seu, não só custo?',
+    ]),
+    ameacas: bloco([
+      'Atrasos seguidos empurram o cliente para o concorrente?',
+      'Combustível ou frete mais caro inviabiliza seu lucro?',
+      'Se um parceiro de entrega falhar, suas entregas param?',
+      'A entrega trava o crescimento do seu negócio?',
+    ]),
+  },
+  [Area.MARKETING]: {
+    forcas: bloco([
+      'Você tem clientes fiéis que indicam você?',
+      'Seu nome é conhecido e respeitado na região?',
+      'Tem um jeito de trazer cliente que funciona sempre?',
+      'O que faz o cliente te escolher e voltar?',
+    ]),
+    fraquezas: bloco([
+      'Você sabe quanto gasta para conquistar um cliente novo?',
+      'De onde vêm seus clientes? Você controla isso ou é sorte?',
+      'Se a sua maior fonte de clientes secasse, teria um plano B?',
+      'Sua parte de vendas é organizada ou bagunçada?',
+    ]),
+    oportunidades: bloco([
+      'Estar mais presente na internet traria mais vendas?',
+      'Pedir indicação aos bons clientes traria mais como eles?',
+      'Tem algum jeito de vender que você nunca testou?',
+      'Onde os concorrentes comunicam mal e você poderia se destacar?',
+    ]),
+    ameacas: bloco([
+      'Depender de poucos clientes te deixa exposto?',
+      'Um concorrente com marketing forte pode te tomar mercado?',
+      'Está cada vez mais caro e difícil fechar uma venda?',
+      'Seu nome é fraco a ponto de só competir por preço?',
+    ]),
+  },
+  [Area.TENDENCIAS]: {
+    forcas: bloco([
+      'Você costuma perceber as mudanças antes dos outros?',
+      'Já acertou ao apostar em uma novidade? Como foi?',
+      'Você gosta de testar coisas novas no negócio?',
+      'Que visão de futuro sua já valeu a pena?',
+    ]),
+    fraquezas: bloco([
+      'Você decide olhando o mercado ou no sentimento?',
+      'As mudanças do mercado costumam te pegar de surpresa?',
+      'Já pensou em quem tocaria o negócio se você parasse?',
+      'Você reserva um tempo para pensar no futuro da empresa?',
+    ]),
+    oportunidades: bloco([
+      'Que novidade poderia te colocar na frente?',
+      'Tem algo novo que dá para testar sem arriscar muito?',
+      'Que tendência do seu ramo os concorrentes ainda ignoram?',
+      'Como adivinhar o que seu cliente vai querer amanhã?',
+    ]),
+    ameacas: bloco([
+      'Seu jeito de trabalhar pode ficar ultrapassado em poucos anos?',
+      'Alguma novidade ou novo concorrente ameaça seu ramo?',
+      'Continuar fazendo igual pode te deixar para trás?',
+      'Sem alguém para suceder, o que acontece com a empresa?',
+    ]),
+  },
+  [Area.GOVERNANCA]: {
+    forcas: bloco([
+      'Tem alguma rotina ou tarefa que já funciona sozinha?',
+      'Vocês fazem reuniões que realmente resolvem coisas?',
+      'O que na empresa já anda bem mesmo sem você por perto?',
+      'As pessoas sabem quem cuida de cada coisa?',
+    ]),
+    fraquezas: bloco([
+      'Quantas decisões por dia ainda precisam passar por você?',
+      'Se você sumisse por 2 meses, a empresa andaria ou pararia?',
+      'As coisas estão na cabeça das pessoas ou anotadas?',
+      'Você confia na equipe para decidir ou centraliza tudo?',
+    ]),
+    oportunidades: bloco([
+      'Anotar como cada tarefa é feita facilitaria a vida?',
+      'Definir quem decide o quê tiraria peso de você?',
+      'Padronizar o jeito de trabalhar reduziria retrabalho?',
+      'Preparar alguém de confiança ajudaria a empresa a crescer?',
+    ]),
+    ameacas: bloco([
+      'Se você se afastar, a empresa entra em crise?',
+      'A bagunça pode te trazer problema com a lei?',
+      'Tudo passar por você vira um gargalo que trava o crescimento?',
+      'Depender de poucas pessoas-chave é uma bomba-relógio?',
+    ]),
+  },
+};
+
+export function obterPerguntasProfundas(area: string): PerguntasProfundas {
+  return (
+    BANCO_PERGUNTAS[area as Area] || {
+      forcas: bloco([
+        'O que você já faz bem nesta área?',
+        'O que faria mais falta se você perdesse?',
+      ]),
+      fraquezas: bloco([
+        'O que aqui você sabe que está mal resolvido?',
+        'O que só funciona se você estiver presente?',
+      ]),
+      oportunidades: bloco([
+        'O que dá para aproveitar para melhorar esta área?',
+        'O que você já tem e poderia usar melhor?',
+      ]),
+      ameacas: bloco([
+        'Se nada mudar aqui, qual é o pior que pode acontecer?',
+        'De quem ou do quê você depende demais nesta área?',
+      ]),
+    }
+  );
+}
