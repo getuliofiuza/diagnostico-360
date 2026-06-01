@@ -144,6 +144,7 @@ export default function SwotPage() {
           >
             🖨️ Imprimir / Salvar PDF
           </button>
+          <EnviarSwotEmailButton diagnosticoId={diagnosticoId} />
           <button
             onClick={() => salvar()}
             disabled={salvando}
@@ -410,6 +411,87 @@ function QuadranteCampo({
         className="w-full border border-white/60 bg-white rounded-lg px-2 py-1.5 text-sm focus:border-gray-400"
         placeholder="Escreva aqui…"
       />
+    </div>
+  )
+}
+
+function EnviarSwotEmailButton({ diagnosticoId }: { diagnosticoId: string }) {
+  const [aberto, setAberto] = useState(false)
+  const [email, setEmail] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [ok, setOk] = useState(false)
+  const [erro, setErro] = useState('')
+
+  async function enviar() {
+    if (!email || !email.includes('@')) {
+      setErro('Informe um email válido')
+      return
+    }
+    setEnviando(true)
+    setErro('')
+    try {
+      const res = await fetch(`/api/swot/${diagnosticoId}/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destinatario: email }),
+      })
+      const json = await res.json()
+      if (!res.ok || !json.success) {
+        setErro(json.error || 'Falha ao enviar')
+        return
+      }
+      setOk(true)
+      setTimeout(() => { setAberto(false); setOk(false) }, 2500)
+    } catch {
+      setErro('Erro de conexão')
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  if (ok) {
+    return (
+      <span className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm font-medium">
+        ✅ Enviado!
+      </span>
+    )
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setAberto((a) => !a)}
+        className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium"
+      >
+        ✉️ Enviar por email
+      </button>
+      {aberto && (
+        <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-lg p-3 z-10">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="email@destino.com"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2"
+          />
+          {erro && <p className="text-xs text-red-600 mb-2">{erro}</p>}
+          <div className="flex gap-2">
+            <button
+              onClick={enviar}
+              disabled={enviando}
+              className="flex-1 bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 text-sm font-medium disabled:opacity-60"
+            >
+              {enviando ? 'Enviando…' : 'Enviar'}
+            </button>
+            <button
+              onClick={() => setAberto(false)}
+              className="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm hover:bg-gray-50"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
