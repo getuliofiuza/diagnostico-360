@@ -611,3 +611,200 @@ export function obterPerguntasProfundas(area: string): PerguntasProfundas {
     }
   );
 }
+
+// ============================================================================
+// PLANO DE AÇÕES ESTRATÉGICAS — MATRIZ TOWS (SWOT cruzada)
+// ============================================================================
+// Distribui as 10 áreas em 4 quadrantes estratégicos, conforme o escore do
+// diagnóstico. Cada quadrante representa um cruzamento da SWOT e uma postura
+// estratégica priorizada. Escore/status são puxados do diagnóstico; estratégia
+// vem como sugestão (placeholder) e os campos editáveis salvam no banco.
+// ----------------------------------------------------------------------------
+
+export type QuadranteTows = 'O1' | 'O2' | 'O3' | 'O4';
+
+export interface DefQuadrante {
+  id: QuadranteTows;
+  codigo: string;      // "O.1"
+  rotulo: string;      // "VULNERABILIDADES"
+  cruzamento: string;  // "Fraquezas × Ameaças"
+  prioridade: string;  // "PRIORIDADE 1 — Eliminar urgente"
+  emoji: string;
+  // classes de cor (cabeçalho e fundo das linhas)
+  corHeader: string;
+  corLinha: string;
+  rotuloItem: string;  // "Vulnerabilidade"
+}
+
+export const QUADRANTES_TOWS: DefQuadrante[] = [
+  {
+    id: 'O1',
+    codigo: 'O.1',
+    rotulo: 'VULNERABILIDADES',
+    cruzamento: 'Fraquezas × Ameaças',
+    prioridade: 'PRIORIDADE 1 — Eliminar urgente',
+    emoji: '🔴',
+    corHeader: 'bg-red-700 text-white',
+    corLinha: 'bg-red-50',
+    rotuloItem: 'Vulnerabilidade',
+  },
+  {
+    id: 'O2',
+    codigo: 'O.2',
+    rotulo: 'AÇÕES OFENSIVAS',
+    cruzamento: 'Forças × Oportunidades',
+    prioridade: 'PRIORIDADE 2 — Aproveitar vantagens',
+    emoji: '🟢',
+    corHeader: 'bg-green-700 text-white',
+    corLinha: 'bg-green-50',
+    rotuloItem: 'Ação Ofensiva',
+  },
+  {
+    id: 'O3',
+    codigo: 'O.3',
+    rotulo: 'DEBILIDADES',
+    cruzamento: 'Fraquezas × Oportunidades',
+    prioridade: 'PRIORIDADE 3 — Converter fraquezas',
+    emoji: '🟡',
+    corHeader: 'bg-orange-600 text-white',
+    corLinha: 'bg-orange-50',
+    rotuloItem: 'Debilidade',
+  },
+  {
+    id: 'O4',
+    codigo: 'O.4',
+    rotulo: 'AÇÕES DEFENSIVAS',
+    cruzamento: 'Forças × Ameaças',
+    prioridade: 'PRIORIDADE 4 — Defender posições',
+    emoji: '🔵',
+    corHeader: 'bg-blue-600 text-white',
+    corLinha: 'bg-blue-50',
+    rotuloItem: 'Ação Defensiva',
+  },
+];
+
+// Semáforo do escore (igual à legenda do template)
+export function semaforoEscore(escore: number | null): { emoji: string; cor: string; label: string } {
+  if (escore == null) return { emoji: '⚪️', cor: 'text-gray-400', label: 'Não avaliado' };
+  if (escore < 5.0) return { emoji: '🔴', cor: 'text-red-600', label: 'Crítico' };
+  if (escore < 7.0) return { emoji: '🟡', cor: 'text-yellow-600', label: 'Atenção' };
+  return { emoji: '🟢', cor: 'text-green-600', label: 'Saudável' };
+}
+
+// Ícone por área (para a coluna "ÁREA 360°")
+const ICONE_AREA: Record<string, string> = {
+  [Area.FINANCEIRO]: '💰',
+  [Area.PLANEJAMENTO]: '🎯',
+  [Area.RH]: '👥',
+  [Area.ESTOQUE]: '📦',
+  [Area.TECNOLOGIA]: '💻',
+  [Area.RELACOES]: '🤝',
+  [Area.LOGISTICA]: '🚛',
+  [Area.MARKETING]: '📈',
+  [Area.TENDENCIAS]: '🔮',
+  [Area.GOVERNANCA]: '⚖️',
+};
+
+export function iconeArea(area: string): string {
+  return ICONE_AREA[area] || '•';
+}
+
+// Estratégia sugerida por área + quadrante (placeholder editável)
+const ESTRATEGIA_SUGERIDA: Partial<Record<Area, Partial<Record<QuadranteTows, string>>>> = {
+  [Area.FINANCEIRO]: {
+    O1: 'Implantar controle de caixa e DRE para estancar o risco financeiro imediato',
+    O2: 'Alavancar a saúde financeira para investir em crescimento',
+    O3: 'Estruturar formação de preço e capital de giro',
+    O4: 'Proteger a estabilidade financeira e a segurança jurídica dos contratos',
+  },
+  [Area.RH]: {
+    O1: 'Reestruturar políticas de RH: retenção, sucessão e capacitação urgente',
+    O2: 'Usar a equipe forte como base para escalar a operação',
+    O3: 'Desenvolver integração, motivação e comunicação interna',
+    O4: 'Preservar benefícios e clima organizacional para reter talentos-chave',
+  },
+  [Area.GOVERNANCA]: {
+    O1: 'Implantar controles internos e governança para reduzir dependência da liderança',
+    O2: 'Padronizar processos para sustentar a expansão',
+    O3: 'Implantar cultura de controles internos e padronização de processos',
+    O4: 'Blindar a operação contra passivos com processos formais',
+  },
+  [Area.PLANEJAMENTO]: {
+    O1: 'Definir plano e metas claras para sair do modo reativo',
+    O2: 'Potencializar o planejamento formal e o uso de dados para expansão',
+    O3: 'Implantar rotina de planejamento e monitoramento de mercado',
+    O4: 'Manter capacidade de planejar frente à instabilidade do mercado',
+  },
+  [Area.MARKETING]: {
+    O1: 'Reorganizar a gestão comercial para estancar a queda de vendas',
+    O2: 'Ampliar presença de mercado e fidelização de clientes',
+    O3: 'Estruturar marketing digital e monitoramento da concorrência',
+    O4: 'Defender o relacionamento com clientes-chave e a marca',
+  },
+  [Area.TECNOLOGIA]: {
+    O1: 'Mitigar riscos de segurança e dependência de processos manuais',
+    O2: 'Usar tecnologia/dados como vantagem competitiva',
+    O3: 'Capacitar a equipe em TI e modernizar ferramentas de gestão',
+    O4: 'Proteger dados e garantir continuidade operacional',
+  },
+  [Area.RELACOES]: {
+    O1: 'Regularizar pendências legais e reduzir exposição a passivos',
+    O2: 'Expandir parcerias institucionais estratégicas',
+    O3: 'Estruturar programa de relacionamento institucional',
+    O4: 'Defender o relacionamento com stakeholders estratégicos',
+  },
+  [Area.TENDENCIAS]: {
+    O1: 'Reduzir o risco de obsolescência do modelo de negócio',
+    O2: 'Antecipar tendências e testar novos modelos de negócio',
+    O3: 'Estruturar leitura de mercado e planejamento sucessório',
+    O4: 'Proteger a relevância do negócio frente a disrupções',
+  },
+  [Area.ESTOQUE]: {
+    O1: 'Estancar perdas e ruptura de estoque crítico',
+    O2: 'Otimizar giro e capital de giro via gestão de estoque',
+    O3: 'Implantar curva ABC e integração estoque-vendas',
+    O4: 'Proteger o caixa reduzindo capital empatado',
+  },
+  [Area.LOGISTICA]: {
+    O1: 'Resolver atrasos e gargalos de entrega que custam clientes',
+    O2: 'Transformar a logística em diferencial competitivo',
+    O3: 'Implantar roteirização e parcerias de frete',
+    O4: 'Proteger a margem frente à alta de custos logísticos',
+  },
+};
+
+export function estrategiaSugerida(area: string, q: QuadranteTows): string {
+  return ESTRATEGIA_SUGERIDA[area as Area]?.[q] || '';
+}
+
+// Classifica cada área da SWOT em um quadrante TOWS, conforme o escore.
+//   escore < 5.0  -> O.1 Vulnerabilidades (crítico, eliminar urgente)
+//   5.0–6.9       -> O.3 Debilidades (atenção, converter)
+//   >= 7.0        -> O.2 Ofensivas (forte, aproveitar)
+//   não avaliado  -> O.4 Defensivas (postura de proteção/preparação)
+export function quadranteDaArea(item: SwotItem): QuadranteTows {
+  if (item.escore == null) return 'O4';
+  if (item.escore < 5.0) return 'O1';
+  if (item.escore < 7.0) return 'O3';
+  return 'O2';
+}
+
+export interface LinhaPlano {
+  area: string;
+  escore: number | null;
+  estrategiaSugerida: string;
+}
+
+// Agrupa os itens nos 4 quadrantes, prontos para render.
+export function montarPlanoTows(itens: SwotItem[]): Record<QuadranteTows, LinhaPlano[]> {
+  const grupos: Record<QuadranteTows, LinhaPlano[]> = { O1: [], O2: [], O3: [], O4: [] };
+  itens.forEach((i) => {
+    const q = quadranteDaArea(i);
+    grupos[q].push({
+      area: i.area,
+      escore: i.escore,
+      estrategiaSugerida: estrategiaSugerida(i.area, q),
+    });
+  });
+  return grupos;
+}

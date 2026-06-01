@@ -10,6 +10,11 @@ import {
   corClassificacao,
   obterPrompts,
   obterPerguntasProfundas,
+  QUADRANTES_TOWS,
+  montarPlanoTows,
+  semaforoEscore,
+  iconeArea,
+  QuadranteTows,
 } from '@/lib/swot/calcular'
 
 interface DiagnosticoResumo {
@@ -78,6 +83,11 @@ export default function SwotPage() {
       }
       return novo
     })
+  }
+
+  // Atualiza um item pela área (usado pelo Plano de Ação TOWS).
+  function atualizarItemPorArea(area: string, campo: keyof SwotItem, valor: string) {
+    setItens((prev) => prev.map((i) => (i.area === area ? { ...i, [campo]: valor } : i)))
   }
 
   async function salvar(novoStatus?: string) {
@@ -348,8 +358,8 @@ export default function SwotPage() {
         })}
       </div>
 
-      {/* Plano de Ação Estratégica 360 — consolida as ações definidas */}
-      <PlanoAcao360 itens={itens} />
+      {/* Plano de Ação Estratégica 360 — matriz TOWS por quadrante */}
+      <PlanoAcao360 itens={itens} onUpdateArea={atualizarItemPorArea} />
 
       {/* Síntese estratégica */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mt-6 print:border print:break-inside-avoid">
@@ -507,60 +517,121 @@ function EnviarSwotEmailButton({ diagnosticoId }: { diagnosticoId: string }) {
   )
 }
 
-function PlanoAcao360({ itens }: { itens: SwotItem[] }) {
-  // Consolida as áreas que têm alguma ação/estratégia definida.
-  const acoes = itens
-    .filter((i) => (i.estrategia || '').trim() || (i.acao_responsavel || '').trim() || (i.acao_prazo || '').trim())
-    .sort((a, b) => a.prioridade - b.prioridade)
+function PlanoAcao360({
+  itens,
+  onUpdateArea,
+}: {
+  itens: SwotItem[]
+  onUpdateArea: (area: string, campo: keyof SwotItem, valor: string) => void
+}) {
+  const grupos = montarPlanoTows(itens)
+  const porArea = new Map(itens.map((i) => [i.area, i]))
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 mt-6 print:border print:break-inside-avoid">
-      <h2 className="font-bold text-gray-900 mb-1">Plano de Ação Estratégica 360</h2>
-      <p className="text-xs text-gray-500 mb-4">
-        Consolidação das ações definidas, por ordem de prioridade. {acoes.length === 0 && 'Preencha estratégia, responsável ou prazo nas áreas acima para montar o plano.'}
-      </p>
+    <div className="bg-white rounded-2xl border border-gray-200 mt-6 overflow-hidden print:border print:break-inside-avoid">
+      {/* Cabeçalho */}
+      <div className="bg-gray-900 text-white px-6 py-4 text-center">
+        <h2 className="font-bold text-lg tracking-wide">PLANO DE AÇÕES ESTRATÉGICAS — DIAGNÓSTICO 360°</h2>
+        <p className="text-[11px] text-gray-300 mt-1">
+          Ações priorizadas por quadrante SWOT, vinculadas às 10 áreas do Diagnóstico 360° ·
+          Escore e status puxados automaticamente
+        </p>
+      </div>
 
-      {acoes.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="text-left text-xs text-gray-500 border-b border-gray-200">
-                <th className="py-2 pr-3 font-medium w-8">#</th>
-                <th className="py-2 pr-3 font-medium">Área</th>
-                <th className="py-2 pr-3 font-medium">Ação / Estratégia</th>
-                <th className="py-2 pr-3 font-medium whitespace-nowrap">Responsável</th>
-                <th className="py-2 font-medium whitespace-nowrap">Prazo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {acoes.map((a) => (
-                <tr key={a.area} className="border-b border-gray-100 align-top">
-                  <td className="py-3 pr-3">
-                    <span className="inline-flex w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-bold items-center justify-center">
-                      {a.prioridade}
-                    </span>
-                  </td>
-                  <td className="py-3 pr-3">
-                    <div className="font-medium text-gray-900">{a.area}</div>
-                    <span className={`inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded border ${corClassificacao(a.classificacao)}`}>
-                      {a.classificacao || '—'}
-                    </span>
-                  </td>
-                  <td className="py-3 pr-3 text-gray-700 whitespace-pre-line">
-                    {a.estrategia?.trim() || <span className="text-gray-400 italic">—</span>}
-                  </td>
-                  <td className="py-3 pr-3 text-gray-700">
-                    {a.acao_responsavel?.trim() || <span className="text-gray-400 italic">—</span>}
-                  </td>
-                  <td className="py-3 text-gray-700 whitespace-nowrap">
-                    {a.acao_prazo?.trim() || <span className="text-gray-400 italic">—</span>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="p-4 space-y-5">
+        {QUADRANTES_TOWS.map((q) => {
+          const linhas = grupos[q.id]
+          return (
+            <div key={q.id} className="rounded-xl border border-gray-200 overflow-hidden">
+              {/* Faixa do quadrante */}
+              <div className={`${q.corHeader} px-4 py-2 text-sm font-bold flex items-center gap-2`}>
+                <span>{q.codigo}</span>
+                <span>|</span>
+                <span>{q.emoji} {q.rotulo}</span>
+                <span className="font-normal opacity-90">| {q.cruzamento} · {q.prioridade}</span>
+              </div>
+
+              {linhas.length === 0 ? (
+                <p className={`${q.corLinha} text-xs text-gray-500 italic px-4 py-3`}>
+                  Nenhuma área classificada neste quadrante.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500 border-b border-gray-200 bg-white">
+                        <th className="py-2 px-3 font-medium w-12">#</th>
+                        <th className="py-2 px-3 font-medium">Área 360°</th>
+                        <th className="py-2 px-3 font-medium w-16 text-center">Escore</th>
+                        <th className="py-2 px-3 font-medium">Estratégia</th>
+                        <th className="py-2 px-3 font-medium w-40">Responsável</th>
+                        <th className="py-2 px-3 font-medium w-32">Prazo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {linhas.map((l, i) => {
+                        const item = porArea.get(l.area)
+                        const sem = semaforoEscore(l.escore)
+                        return (
+                          <tr key={l.area} className={`${q.corLinha} border-b border-white align-top`}>
+                            <td className="py-2 px-3 text-xs font-semibold text-gray-600 whitespace-nowrap">
+                              E.{q.codigo.slice(2)}.{i + 1}
+                            </td>
+                            <td className="py-2 px-3 whitespace-nowrap">
+                              <span className="font-medium text-gray-900">
+                                {iconeArea(l.area)} {l.area}
+                              </span>
+                              <div className="text-[10px] text-gray-500">{q.rotuloItem}</div>
+                            </td>
+                            <td className="py-2 px-3 text-center whitespace-nowrap">
+                              <span className={`font-bold ${sem.cor}`}>
+                                {sem.emoji} {l.escore != null ? l.escore.toFixed(1) : '—'}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3">
+                              <textarea
+                                value={item?.estrategia || ''}
+                                onChange={(e) => onUpdateArea(l.area, 'estrategia', e.target.value)}
+                                rows={2}
+                                placeholder={l.estrategiaSugerida || 'Defina a estratégia…'}
+                                className="w-full bg-white/80 border border-gray-200 rounded-md px-2 py-1 text-xs focus:border-gray-400 placeholder:text-gray-400 placeholder:italic"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={item?.acao_responsavel || ''}
+                                onChange={(e) => onUpdateArea(l.area, 'acao_responsavel', e.target.value)}
+                                placeholder="Quem assume?"
+                                className="w-full bg-white/80 border border-gray-200 rounded-md px-2 py-1 text-xs focus:border-gray-400"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={item?.acao_prazo || ''}
+                                onChange={(e) => onUpdateArea(l.area, 'acao_prazo', e.target.value)}
+                                placeholder="Ex.: 30-60 dias"
+                                className="w-full bg-white/80 border border-gray-200 rounded-md px-2 py-1 text-xs focus:border-gray-400"
+                              />
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Legenda */}
+      <div className="bg-gray-50 border-t border-gray-200 px-6 py-3 text-[11px] text-gray-500">
+        <strong>Legenda:</strong> 🔴 Crítico (&lt;5.0) · 🟡 Atenção (5.0–6.9) · 🟢 Saudável (≥7.0) ·
+        ⚪️ Não avaliado · Escore e status puxados automaticamente do Diagnóstico 360°.
+      </div>
     </div>
   )
 }
