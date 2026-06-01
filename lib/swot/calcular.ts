@@ -56,18 +56,28 @@ export interface PromptsArea {
 // Mantém a ordem da matriz (mais crítico primeiro). Caso a matriz venha
 // vazia ou desordenada, ordena por risco_score desc como fallback.
 
-export function derivarItensSwot(matriz: MatrizRiscoItemLike[]): SwotItem[] {
-  const ordenada = [...(matriz || [])].sort((a, b) => {
-    if (a.prioridade && b.prioridade) return a.prioridade - b.prioridade;
-    return (b.risco_score ?? 0) - (a.risco_score ?? 0);
-  });
+// Todas as 10 áreas do diagnóstico, na ordem padrão (usada como fallback de
+// ordenação para áreas que não foram avaliadas no diagnóstico daquele setor).
+const TODAS_AREAS: string[] = [
+  Area.FINANCEIRO,
+  Area.GOVERNANCA,
+  Area.RH,
+  Area.TECNOLOGIA,
+  Area.PLANEJAMENTO,
+  Area.MARKETING,
+  Area.RELACOES,
+  Area.TENDENCIAS,
+  Area.ESTOQUE,
+  Area.LOGISTICA,
+];
 
-  return ordenada.map((m, idx) => ({
-    area: m.area,
-    escore: m.escore ?? null,
-    risco_score: m.risco_score ?? null,
-    classificacao: m.classificacao ?? null,
-    prioridade: m.prioridade || idx + 1,
+function itemVazio(area: string, prioridade: number, base?: Partial<SwotItem>): SwotItem {
+  return {
+    area,
+    escore: base?.escore ?? null,
+    risco_score: base?.risco_score ?? null,
+    classificacao: base?.classificacao ?? null,
+    prioridade,
     forcas: '',
     fraquezas: '',
     oportunidades: '',
@@ -77,7 +87,37 @@ export function derivarItensSwot(matriz: MatrizRiscoItemLike[]): SwotItem[] {
     acao_responsavel: '',
     acao_prazo: '',
     concluido: false,
-  }));
+  };
+}
+
+export function derivarItensSwot(matriz: MatrizRiscoItemLike[]): SwotItem[] {
+  // 1. Áreas avaliadas no diagnóstico, ordenadas (mais crítico primeiro)
+  const avaliadas = [...(matriz || [])].sort((a, b) => {
+    if (a.prioridade && b.prioridade) return a.prioridade - b.prioridade;
+    return (b.risco_score ?? 0) - (a.risco_score ?? 0);
+  });
+
+  const itens: SwotItem[] = avaliadas.map((m, idx) =>
+    itemVazio(m.area, m.prioridade || idx + 1, {
+      escore: m.escore ?? null,
+      risco_score: m.risco_score ?? null,
+      classificacao: m.classificacao ?? null,
+    })
+  );
+
+  // 2. Completa com as áreas que NÃO foram avaliadas no diagnóstico
+  //    (ex.: Estoque/Logística em empresas de Serviços) — entram ao final,
+  //    sem escore/risco, para que a SWOT cubra sempre as 10 áreas.
+  const jaIncluidas = new Set(itens.map((i) => i.area));
+  let prox = itens.length;
+  TODAS_AREAS.forEach((area) => {
+    if (!jaIncluidas.has(area)) {
+      prox += 1;
+      itens.push(itemVazio(area, prox, { classificacao: 'NÃO AVALIADO' }));
+    }
+  });
+
+  return itens;
 }
 
 // ----------------------------------------------------------------------------
@@ -156,8 +196,13 @@ export function corClassificacao(classificacao: string | null): string {
       return 'bg-yellow-100 text-yellow-800 border-yellow-300';
     case 'BAIXO':
       return 'bg-blue-100 text-blue-800 border-blue-300';
-    default:
+    case 'NÃO AVALIADO':
+    case 'NAO AVALIADO':
+      return 'bg-gray-100 text-gray-600 border-gray-300';
+    case 'OK':
       return 'bg-green-100 text-green-800 border-green-300';
+    default:
+      return 'bg-gray-100 text-gray-600 border-gray-300';
   }
 }
 
