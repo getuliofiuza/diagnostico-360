@@ -168,6 +168,29 @@ X-API-Key: dgn_live_...
 
 ---
 
+### `POST /api/v1/diagnosticos/:id/email` — Enviar relatório por e-mail
+
+**Headers:**
+```http
+X-API-Key: dgn_live_...
+Content-Type: application/json
+```
+
+**Body (opcional):**
+```json
+{ "destinatario": "outro@email.com" }
+```
+Se omitido, envia para `respondente_email` do diagnóstico.
+
+**Resposta 200:**
+```json
+{ "success": true, "destinatario": "joao@acme.com" }
+```
+
+Mesma restrição de ownership por API key. Requer `RESEND_API_KEY` configurada na Vercel.
+
+---
+
 ### `GET /api/v1/diagnosticos?workspace_id=X` — Listar diagnósticos
 
 **Headers:**
