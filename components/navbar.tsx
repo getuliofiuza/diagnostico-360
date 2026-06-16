@@ -72,6 +72,9 @@ export function Navbar() {
                         <Link href="/admin/usuarios" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700">
                           👥 Gerenciar Usuários
                         </Link>
+                        <Link href="/admin/api-keys" className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700">
+                          🔑 API Keys
+                        </Link>
                       </div>
                     </div>
                   </div>
