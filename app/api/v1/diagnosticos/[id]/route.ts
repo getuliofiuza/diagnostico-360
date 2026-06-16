@@ -125,6 +125,19 @@ export async function GET(
       classificacao: m.classificacao,
       prioridade: m.prioridade,
     })),
+    // PDE = Plano de Desenvolvimento Empresarial (terminologia oficial).
+    // Mantemos `pdi` por compatibilidade com clientes antigos (Neurocorp 360
+    // < Jun/2026 lia esse campo). Novos clientes devem ler `pde`. Quando os
+    // clientes estiverem todos migrados, remover `pdi`.
+    pde: pdi.map((p: any) => ({
+      area: p.area,
+      escore_atual: p.escore_atual,
+      escore_meta: p.escore_meta,
+      acao_descricao: p.acao_descricao,
+      acao_prazo: p.acao_prazo,
+      fase: p.fase,
+      status: p.status,
+    })),
     pdi: pdi.map((p: any) => ({
       area: p.area,
       escore_atual: p.escore_atual,
